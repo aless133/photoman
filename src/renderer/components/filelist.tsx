@@ -1,37 +1,38 @@
 import React, { useEffect, useState } from 'react';
-// const { ipcRenderer } = window.require('electron');
-// import { ipcRenderer } from 'electron';
+import { NewFile } from './../../types';
 
 const FileList: React.FC = () => {
-    const [files, setFiles] = useState<string[]>([]);
-    const [error, setError] = useState<string | null>(null);
+  const [files, setFiles] = useState<NewFile[]>([]);
+  const [error, setError] = useState<string>();
 
-    useEffect(() => {
-        const fetchFiles = async () => {
-            try {
-                const fileList = await window.photoman.getImages();
-                console.log(fileList);
-                setFiles(fileList);
-            } catch (err) {
-                console.error(err);
-                setError(err as string);
-            }
-        };
+  const fetchFiles = async () => {
+    try {
+      const fileList = await window.photoman.getFiles();
+      console.log(fileList);
+      setFiles(fileList);
+    } catch (err) {
+      console.error(err);
+      setError(err as string);
+    }
+  };
 
-        fetchFiles();
-    }, []);
+  useEffect(() => {
+    fetchFiles();
+  }, []);
 
-    return (
-        <div>
-            <h2>Изображения</h2>
-            {error && <p style={{ color: 'red' }}>{error}</p>}
-            <ul>
-                {files.map((file, index) => (
-                    <img key={index} src={`file://${file}`} width="400"/>
-                ))}
-            </ul>
-        </div>
-    );
+  return (
+    <div>
+      <h2>Изображения</h2>
+      {error && <p style={{ color: 'red' }}>{error}</p>}
+      <ul>
+        {files.map((file, index) => (
+          <li>
+            <img key={index} src={`file://${file.name}`} width="100" />
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
 };
 
 export default FileList;

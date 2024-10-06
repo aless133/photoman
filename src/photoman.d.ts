@@ -1,7 +1,7 @@
 declare global {
   interface Window {
     photoman: {
-      getImages: () => string[];
+      getFiles: () => Promise<NewFile[]>;
     };
   }
 }

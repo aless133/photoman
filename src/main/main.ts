@@ -1,5 +1,5 @@
 import { app, BrowserWindow, ipcMain } from 'electron';
-import { getImages } from './files';
+import { getFiles } from './files';
 // import path from 'path';
 
 declare const MAIN_WINDOW_WEBPACK_ENTRY: string;
@@ -9,19 +9,20 @@ if (require('electron-squirrel-startup')) {
   app.quit();
 }
 
+console.log(app.getPath('userData'));
+
 const createWindow = (): void => {
   // Create the browser window.
   const mainWindow = new BrowserWindow({
-    height: 600,
-    width: 800,
+    height: 800,
+    width: 1400,
     webPreferences: {
       webSecurity: false,
       preload: MAIN_WINDOW_PRELOAD_WEBPACK_ENTRY,
     },
   });
 
-  const directoryPath = "d:\\!pic"; //path.join(__dirname, 'your-directory'); 
-  ipcMain.handle('get-images', () => getImages(directoryPath));
+  ipcMain.handle('get-files', () => getFiles());
 
   // and load the index.html of the app.
   mainWindow.loadURL(MAIN_WINDOW_WEBPACK_ENTRY);
