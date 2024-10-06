@@ -5,7 +5,7 @@ import { NewFile, FileGroups } from './../types';
 const dirLib = 'd:\\photo\\',
   dirFiles = 'd:\\!pic\\';
 
-async function getFileGroups(dir: string) {
+async function getLibrary(dir: string) {
   const libAll = await fs.readdir(dir, { recursive: true, withFileTypes: true });
   const libGroups = libAll
     .filter(file => file.isFile())
@@ -20,7 +20,7 @@ async function getFileGroups(dir: string) {
 }
 
 export async function getFiles(): Promise<NewFile[]> {
-  const library = await getFileGroups(dirLib);
+  const library = await getLibrary(dirLib);
   const files = await fs.readdir(dirFiles);
   const newFiles = files.map(file => {
     const name = path.join(dirFiles, file);
@@ -28,7 +28,7 @@ export async function getFiles(): Promise<NewFile[]> {
     const ext = path.extname(file).toLowerCase();
     const type = ['.jpg', '.jpeg', '.arw'].includes(ext) ? 'image' : ['.mp4'].includes(ext) ? 'video' : 'unknown';
     const ymd = extractDate(file);
-    return { name, type, found, ymd };
+    return { name, basename:file, type, found, ymd };
   });
   console.log(newFiles);
   return newFiles;

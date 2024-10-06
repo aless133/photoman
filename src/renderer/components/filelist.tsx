@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { NewFile } from './../../types';
+import { NewFile } from '../../types';
+import FileItem from './fileitem'
 
 const FileList: React.FC = () => {
   const [files, setFiles] = useState<NewFile[]>([]);
@@ -20,17 +21,14 @@ const FileList: React.FC = () => {
     fetchFiles();
   }, []);
 
+  if (error) return <p style={{ color: 'red' }}>{error}</p>;
+
   return (
     <div>
       <h2>Изображения</h2>
-      {error && <p style={{ color: 'red' }}>{error}</p>}
-      <ul>
-        {files.map((file, index) => (
-          <li>
-            <img key={index} src={`file://${file.name}`} width="100" />
-          </li>
-        ))}
-      </ul>
+      <div className="filelist-list">
+        {files.map((file, index) => <FileItem file={file}/>)}
+      </div>
     </div>
   );
 };

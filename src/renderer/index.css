@@ -1,7 +1,43 @@
 body {
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica,
     Arial, sans-serif;
-  margin: auto;
-  max-width: 38rem;
-  padding: 2rem;
+  padding: 1rem;
+  margin:0;
+}
+h1,h2,h3 {
+  margin-top:0;
+}
+
+.filelist-list {
+}
+.fileitem {
+  display: flex;
+  flex-wrap: nowrap;
+  align-items:start;
+  margin-bottom:15px;
+  gap:10px;
+  border:1px solid #ccc;
+}
+
+.fileitem-img {
+  width:150px;
+}
+.fileitem-name {
+  width:200px;
+}
+.fileitem-found {
+  width:400px;
+}
+.fileitem-found-item {
+  display: flex;  
+  align-items:start;
+  gap:5px;
+}
+.fileitem-found-item + .fileitem-found-item {
+  border-top:1px solid #ccc;
+  margin:5px 0 0 0;
+  padding: 5px 0 0 0;
+}
+.fileitem-found-img {
+  width:80px;
 }
