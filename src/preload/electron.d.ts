@@ -1,9 +1,7 @@
 declare global {
   interface Window {
-    versions: {
-      node: () => string;
-      chrome: () => string;
-      electron: () => string;
+    photoman: {
+      getImages: () => string[];
     };
   }
 }
