@@ -2,7 +2,7 @@
   "name": "photoman",
   "version": "1.0.0",
   "description": "photo manager",
-  "main": "main.js",
+  "main": "src/main/main.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "dev": "electron .",
