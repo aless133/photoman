@@ -1,5 +1,6 @@
 import { app, BrowserWindow, ipcMain } from 'electron';
 import { getFiles } from './files';
+import { createMenu } from './menu';
 // import path from 'path';
 
 declare const MAIN_WINDOW_WEBPACK_ENTRY: string;
@@ -34,6 +35,7 @@ const createWindow = (): void => {
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.
 // Some APIs can only be used after this event occurs.
+createMenu();
 app.on('ready', createWindow);
 
 // Quit when all windows are closed, except on macOS. There, it's common
