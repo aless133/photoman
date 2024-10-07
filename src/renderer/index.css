@@ -17,6 +17,36 @@ h3 {
   margin-top: 0;
 }
 
+.filelist-header {
+  display: flex;
+  font-size:20px;
+  padding:10px 0;
+  gap:10px;
+}
+.count {
+  font-weight: bold;
+  color:#fff;
+  background:gray;
+  border-radius:5px;
+  padding:1px 5px;
+}
+.filelist-header-name {
+  width:400px;
+}
+.filelist-header-found {
+  width:400px;
+}
+.filelist-header-destination {
+  width:400px;
+}
+.filelist-header-selected {
+  /* width:250px; */
+}
+.filelist-header-selected button {
+  margin-left:10px;
+  font-size:18px
+}
+
 /* .filelist-list {
 } */
 .fileitem {
@@ -34,7 +64,7 @@ h3 {
 .fileitem-name {
   padding:10px 0;  
   word-break: break-all;
-  width: 300px;
+  width: 240px;
 }
 .fileitem-found {
   width: 400px;
@@ -80,7 +110,7 @@ h3 {
   flex-grow:1;  
 }
 .fileitem-select {
-  width:50px;
+  width:100px;
   padding:10px 0;  
 }
 

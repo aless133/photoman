@@ -68,17 +68,34 @@ const FilesList: React.FC<{
   else if (state == 'error') return <p className="error">{error}</p>;
 
   return (
-    <div className="filelist-list">
-      {files.map(file => (
-        <FileItem
-          key={file.name}
-          file={file}
-          destination={destinations[file.name]}
-          updateDestination={(val, all) => updateDestination(file.name, val, all)}
-          selected={selected.includes(file.name)}
-          updateSelected={isChecked => updateSelected(file.name, isChecked)}
-        />
-      ))}
+    <div className="filelist">
+      <div className="filelist-header">
+        <div className="filelist-header-name">
+          {window.photoman.getFilesDir()} Файлов <span className="count">{files.length}</span>
+        </div>
+        <div className="filelist-header-found">
+          {window.photoman.getLibDir()} Найдено <span className="count">{files.filter(f=>f.found).length}</span>
+        </div>
+        <div className="filelist-header-destination">
+          Указано <span className="count">{files.filter(f=>!!destinations[f.name]).length}</span>
+        </div>        
+        <div className="filelist-header-selected">
+          Выбрано <span className="count">{selected.length}</span>
+          <button>Копировать</button>
+        </div>
+      </div>
+      <div className="filelist-list">
+        {files.map(file => (
+          <FileItem
+            key={file.name}
+            file={file}
+            destination={destinations[file.name]}
+            updateDestination={(val, all) => updateDestination(file.name, val, all)}
+            selected={selected.includes(file.name)}
+            updateSelected={isChecked => updateSelected(file.name, isChecked)}
+          />
+        ))}
+      </div>
     </div>
   );
 };
