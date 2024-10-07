@@ -5,21 +5,21 @@ export function createMenu() {
     {
       label: 'Файл',
       submenu: [
-        {
-          label: 'Изменить рабочий каталог',
-          click: () => {
-            console.log('New File clicked');
-            // Add your logic here
-          },
-        },
-        {
-          label: 'Изменить каталог хранилища',
-          click: () => {
-            console.log('Open File clicked');
-            // Add your logic here
-          },
-        },
-        { type: 'separator' },
+      //   {
+      //     label: 'Изменить рабочий каталог',
+      //     click: () => {
+      //       console.log('New File clicked');
+      //       // Add your logic here
+      //     },
+      //   },
+      //   {
+      //     label: 'Изменить каталог хранилища',
+      //     click: () => {
+      //       console.log('Open File clicked');
+      //       // Add your logic here
+      //     },
+      //   },
+      //   { type: 'separator' },
         {
           label: 'Выход',
           role: 'quit', // This will automatically close the app
