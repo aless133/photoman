@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { NewFile } from '../../types';
-import FileItem from './fileitem'
+import FileItem from './fileitem';
 
 const FileList: React.FC = () => {
+  const [state, setState] = useState<string>('loading');
   const [files, setFiles] = useState<NewFile[]>([]);
   const [error, setError] = useState<string>();
 
@@ -10,9 +11,11 @@ const FileList: React.FC = () => {
     try {
       const fileList = await window.photoman.getFiles();
       console.log(fileList);
+      setState('ok');
       setFiles(fileList);
     } catch (err) {
       console.error(err);
+      setState('error');
       setError(err as string);
     }
   };
@@ -21,15 +24,20 @@ const FileList: React.FC = () => {
     fetchFiles();
   }, []);
 
-  if (error) return <p style={{ color: 'red' }}>{error}</p>;
+  if (state == 'loading')
+    return (
+      <p>
+        Loading...<span className="loader"></span>
+      </p>
+    );
+  else if (state == 'error') return <p className="error">{error}</p>;
 
   return (
-    <div>
-      <h2>Изображения</h2>
       <div className="filelist-list">
-        {files.map((file, index) => <FileItem file={file}/>)}
+        {files.map((file, index) => (
+          <FileItem file={file} />
+        ))}
       </div>
-    </div>
   );
 };
 
