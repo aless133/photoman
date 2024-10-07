@@ -30,6 +30,11 @@ h3 {
   border-radius:5px;
   padding:1px 5px;
 }
+.error {
+  font-size:20px;
+  font-weight:bold;
+  color:red;
+}
 .filelist-header-name {
   width:400px;
 }

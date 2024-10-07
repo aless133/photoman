@@ -1,5 +1,5 @@
 import { app, BrowserWindow, ipcMain } from 'electron';
-import { getFiles } from './files';
+import { getFiles, copyFiles } from './files';
 import { createMenu } from './menu';
 // import path from 'path';
 
@@ -24,6 +24,7 @@ const createWindow = (): void => {
   });
 
   ipcMain.handle('get-files', () => getFiles());
+  ipcMain.handle('copy-files', (event,d) => copyFiles(d));
 
     // // Watch a specific directory
     // const directoryToWatch = path.join(__dirname, 'your-directory'); // Change this to your directory

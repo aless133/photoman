@@ -1,6 +1,4 @@
-export type FileGroups = {
-  [key: string]: string[];
-};
+export type FileGroups = Record<string, string[]>;
 
 export type NewFile = {
   name: string;

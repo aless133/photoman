@@ -1,6 +1,6 @@
 import { promises as fs } from 'fs';
 import path from 'path';
-import { NewFile, FileGroups } from './../types';
+import { NewFile, FileGroups, Destinations } from './../types';
 import { libDir, filesDir } from './config';
 
 async function getLibrary(dir: string) {
@@ -26,7 +26,7 @@ export async function getFiles(): Promise<NewFile[]> {
     const ext = path.extname(file).toLowerCase();
     const type = ['.jpg', '.jpeg', '.arw'].includes(ext) ? 'image' : ['.mp4'].includes(ext) ? 'video' : 'unknown';
     const ymd = extractDate(file);
-    const destination = ymd?`${ymd.year}\\${ymd.year}.${ymd.month}.${ymd.day}`:null;
+    const destination = ymd ? `${ymd.year}\\${ymd.year}.${ymd.month}.${ymd.day}` : null;
     return { name, basename: file, type, found, destination };
   });
   // console.log(newFiles);
@@ -50,4 +50,19 @@ function extractDate(filename: string) {
     if (match) return { year: match[1], month: match[2], day: match[3] };
   }
   return null;
+}
+
+export async function copyFiles(d: Destinations): Promise<void> {
+  for (const [source, destination] of Object.entries(d)) {
+    try {
+      const destDir = path.join(libDir, destination);
+      await fs.mkdir(destDir, { recursive: true });
+      const destinationFull = path.join(destDir, path.basename(source));
+      await fs.copyFile(source, destinationFull);
+      console.log(`Copied ${source} to ${destinationFull}`);
+    } catch (error) {
+      console.error(`Error copying ${source} to ${destination}:`, error);
+      throw error;
+    }
+  }
 }

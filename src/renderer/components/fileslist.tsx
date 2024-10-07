@@ -56,7 +56,7 @@ const FilesList: React.FC<{
     } catch (err) {
       console.error(err);
       setState('error');
-      setError(err as string);
+      setError(err.toString());
     }
   };
 
@@ -64,10 +64,30 @@ const FilesList: React.FC<{
     fetchFiles();
   }, []);
 
+  const copyFiles = async () => {
+    setState('copying');
+    try {
+      await window.photoman.copyFiles(
+        Object.fromEntries(Object.entries(destinations).filter(([key]) => selected.includes(key)))
+      );
+      await fetchFiles();
+    } catch (err) {
+      console.error(err);
+      setState('error');
+      setError(err.toString());
+    }
+  };
+
   if (state == 'loading')
     return (
       <p>
         Loading...<span className="loader"></span>
+      </p>
+    );
+  else if (state == 'copying')
+    return (
+      <p>
+        Copying...<span className="loader"></span>
       </p>
     );
   else if (state == 'error') return <p className="error">{error}</p>;
@@ -86,7 +106,7 @@ const FilesList: React.FC<{
         </div>
         <div className="filelist-header-selected">
           Выбрано <span className="count">{selected.length}</span>
-          <button>Копировать</button>
+          <button onClick={copyFiles}>Копировать</button>
         </div>
       </div>
       <div className="filelist-list">
