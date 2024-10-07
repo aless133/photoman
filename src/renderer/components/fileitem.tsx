@@ -34,7 +34,7 @@ const FileItem: React.FC<{
         <FileDestination destination={destination} updateDestination={updateDestination}/>
       </div>
       <div className="fileitem-select">
-        <input type="checkbox" checked={selected} onChange={e => updateSelected(e.target.checked)} />
+        {!!destination && <input type="checkbox" checked={selected} onChange={e => updateSelected(e.target.checked)} />}
       </div>
     </div>
   );

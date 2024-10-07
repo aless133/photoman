@@ -16,8 +16,13 @@ const FilesList: React.FC<{
       const newDest = { ...prevState };
       const oldVal = prevState[key];
       if (all) {
-        for (const k in newDest) if (newDest[k] == oldVal) newDest[k] = value;
+        for (const k in newDest)
+          if (newDest[k] == oldVal) {
+            if (!value) updateSelected(k, false);
+            newDest[k] = value;
+          }
       } else {
+        if (!value) updateSelected(key, false);
         newDest[key] = value;
       }
       return newDest;
@@ -74,11 +79,11 @@ const FilesList: React.FC<{
           {window.photoman.getFilesDir()} Файлов <span className="count">{files.length}</span>
         </div>
         <div className="filelist-header-found">
-          {window.photoman.getLibDir()} Найдено <span className="count">{files.filter(f=>f.found).length}</span>
+          {window.photoman.getLibDir()} Найдено <span className="count">{files.filter(f => f.found).length}</span>
         </div>
         <div className="filelist-header-destination">
-          Указано <span className="count">{files.filter(f=>!!destinations[f.name]).length}</span>
-        </div>        
+          Указано <span className="count">{files.filter(f => !!destinations[f.name]).length}</span>
+        </div>
         <div className="filelist-header-selected">
           Выбрано <span className="count">{selected.length}</span>
           <button>Копировать</button>
