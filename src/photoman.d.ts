@@ -3,6 +3,7 @@ declare global {
     photoman: {
       getFiles: () => Promise<NewFile[]>;
       getFilesDir: () => string;
+      getLibDir: () => string;
     };
   }
 }

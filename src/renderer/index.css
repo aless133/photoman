@@ -1,3 +1,8 @@
+*,
+::after,
+::before {
+  box-sizing:border-box
+}
 html {
   font-size: 14px;
 }
@@ -12,12 +17,12 @@ h3 {
   margin-top: 0;
 }
 
-.filelist-list {
-}
+/* .filelist-list {
+} */
 .fileitem {
   display: flex;
   flex-wrap: nowrap;
-  align-items: start;
+  align-items: stretch;
   margin-bottom: 15px;
   gap: 10px;
   border: 1px solid #ccc;
@@ -27,7 +32,9 @@ h3 {
   width: 150px;
 }
 .fileitem-name {
-  width: 200px;
+  padding:10px 0;  
+  word-break: break-all;
+  width: 300px;
 }
 .fileitem-found {
   width: 400px;
@@ -44,6 +51,37 @@ h3 {
 }
 .fileitem-found-img {
   width: 80px;
+}
+.fileitem-found-name {
+  padding:10px;
+  /* width:300px; */
+  word-break: break-all;
+}
+.fileitem-destination {
+  width:400px;
+  padding:10px 0;
+}
+.fileitem-destination input[type="text"] {
+  display: block;
+  width:100%;
+  margin-bottom: 10px;
+}
+.filedestination-actions {
+  visibility: hidden;
+  display: flex;
+  justify-content: stretch;
+  gap:10px;
+}
+.filedestination-changed .filedestination-actions {
+  visibility: visible;
+}
+.filedestination-actions button {
+  display: block;
+  flex-grow:1;  
+}
+.fileitem-select {
+  width:50px;
+  padding:10px 0;  
 }
 
 .error {

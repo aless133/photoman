@@ -6,6 +6,8 @@ export type NewFile = {
   name: string;
   basename: string;
   type?: string;
-  ymd?: string | null;
+  destination?: string | null;
   found?: string[];
 };
+
+export type Destinations = Record<string, string>;
