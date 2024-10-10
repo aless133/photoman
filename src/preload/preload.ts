@@ -7,4 +7,10 @@ contextBridge.exposeInMainWorld('photoman', {
   copyFiles: (d: Destinations) => ipcRenderer.invoke('copy-files', d),
   getFilesDir: () => getFilesDir(),
   getLibDir: () => getLibDir(),
+  onFilesChanged: (callback: () => void) => {
+    ipcRenderer.on('files-changed', () => callback());
+  },
+  offFilesChanged: (callback: () => void) => {
+    ipcRenderer.removeListener('files-changed', callback);
+  },
 });

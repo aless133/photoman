@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { Destinations, NewFile } from '../../types';
 import FileItem from './fileitem';
 
@@ -43,14 +43,16 @@ const FilesList: React.FC<{
     setState('loading');
     try {
       const fileList = await window.photoman.getFiles();
-      const d = { ...destinations },
-        s: string[] = [];
-      for (const file of fileList) {
-        if (file.destination && !destinations[file.name]) d[file.name] = file.destination;
-        if (!file.found) s.push(file.name);
-      }
-      setDestinations(d);
-      setSelected(s);
+      setDestinations(prevDestinations => {
+        const newDestinations = { ...prevDestinations };
+        for (const file of fileList) {
+          if (file.destination && !newDestinations[file.name]) {
+            newDestinations[file.name] = file.destination;
+          }
+        }
+        return newDestinations;
+      });
+      setSelected(fileList.filter(file => !file.found).map(file => file.name));
       setFiles(fileList);
       setState('ok');
     } catch (err) {
@@ -63,6 +65,17 @@ const FilesList: React.FC<{
   useEffect(() => {
     fetchFiles();
   }, []);
+
+  const handleFilesChange = useCallback(() => {
+    fetchFiles();
+  }, []);
+
+  useEffect(() => {
+    window.photoman.onFilesChanged(handleFilesChange);
+    return () => {
+      window.photoman.offFilesChanged(handleFilesChange);
+    };
+  }, [handleFilesChange]);
 
   const copyFiles = async () => {
     setState('copying');

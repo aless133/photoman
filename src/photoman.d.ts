@@ -7,6 +7,8 @@ declare global {
       copyFiles: (d: Destinations) => Promise<void>;
       getFilesDir: () => string;
       getLibDir: () => string;
+      onFilesChanged: (callback: () => void) => void;
+      offFilesChanged: (callback: () => void) => void;      
     };
   }
 }

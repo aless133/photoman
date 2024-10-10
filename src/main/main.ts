@@ -1,6 +1,9 @@
 import { app, BrowserWindow, ipcMain } from 'electron';
 import { getFiles, copyFiles } from './files';
 import { createMenu } from './menu';
+import { getFilesDir } from './config';
+import { watch } from 'chokidar';
+import installExtension, { REACT_DEVELOPER_TOOLS } from 'electron-devtools-installer';
 // import path from 'path';
 
 declare const MAIN_WINDOW_WEBPACK_ENTRY: string;
@@ -24,25 +27,25 @@ const createWindow = (): void => {
   });
 
   ipcMain.handle('get-files', () => getFiles());
-  ipcMain.handle('copy-files', (event,d) => copyFiles(d));
+  ipcMain.handle('copy-files', (event, d) => copyFiles(d));
 
-    // // Watch a specific directory
-    // const directoryToWatch = path.join(__dirname, 'your-directory'); // Change this to your directory
-    // const watcher = chokidar.watch(directoryToWatch, { persistent: true });
-
-    // watcher.on('all', (event, path) => {
-    //     console.log(event, path); // Log the event and path of the changed file
-    //     // Send an IPC message to the renderer process
-    //     mainWindow.webContents.send('file-changed', { event, path });
-    // });  
-
+  const handleFilesChange = () => {
+    mainWindow.webContents.send('files-changed');
+  };
+  const watcher = watch(getFilesDir(), { persistent: true });
+  watcher.on('add', handleFilesChange).on('unlink', handleFilesChange);
 
   mainWindow.loadURL(MAIN_WINDOW_WEBPACK_ENTRY);
   mainWindow.webContents.openDevTools();
 };
 
 createMenu();
-app.on('ready', createWindow);
+app.whenReady().then(async () => {
+  await installExtension(REACT_DEVELOPER_TOOLS, { loadExtensionOptions: { allowFileAccess: true } })
+    .then(name => console.log(`Added Extension:  ${name}`))
+    .catch(err => console.log('REACT_DEVELOPER_TOOLS An error occurred: ', err));
+  createWindow();
+});
 
 app.on('window-all-closed', () => {
   if (process.platform !== 'darwin') {
@@ -55,4 +58,3 @@ app.on('activate', () => {
     createWindow();
   }
 });
-
