@@ -1,7 +1,7 @@
 import { promises as fs } from 'fs';
 import path from 'path';
 import { NewFile, FileGroups, Destinations } from './../types';
-import { libDir, filesDir } from './config';
+import { getLibDir, getFilesDir } from './config';
 
 async function getLibrary(dir: string) {
   const libAll = await fs.readdir(dir, { recursive: true, withFileTypes: true });
@@ -18,10 +18,10 @@ async function getLibrary(dir: string) {
 }
 
 export async function getFiles(): Promise<NewFile[]> {
-  const library = await getLibrary(libDir);
-  const files = await fs.readdir(filesDir);
+  const library = await getLibrary(getLibDir());
+  const files = await fs.readdir(getFilesDir());
   const newFiles = files.map(file => {
-    const name = path.join(filesDir, file);
+    const name = path.join(getFilesDir(), file);
     const found = library[file];
     const ext = path.extname(file).toLowerCase();
     const type = ['.jpg', '.jpeg', '.arw'].includes(ext) ? 'image' : ['.mp4'].includes(ext) ? 'video' : 'unknown';
@@ -55,7 +55,7 @@ function extractDate(filename: string) {
 export async function copyFiles(d: Destinations): Promise<void> {
   for (const [source, destination] of Object.entries(d)) {
     try {
-      const destDir = path.join(libDir, destination);
+      const destDir = path.join(getLibDir(), destination);
       await fs.mkdir(destDir, { recursive: true });
       const destinationFull = path.join(destDir, path.basename(source));
       await fs.copyFile(source, destinationFull);
