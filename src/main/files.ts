@@ -20,34 +20,47 @@ async function getLibrary(dir: string) {
 export async function getFiles(): Promise<NewFile[]> {
   const library = await getLibrary(getLibDir());
   const files = await fs.readdir(getFilesDir());
-  const newFiles = files.map(file => {
+  const newFiles = Promise.all(files.map(async file => {
     const name = path.join(getFilesDir(), file);
     const found = library[file];
     const ext = path.extname(file).toLowerCase();
     const type = ['.jpg', '.jpeg', '.arw'].includes(ext) ? 'image' : ['.mp4'].includes(ext) ? 'video' : 'unknown';
-    const ymd = extractDate(file);
+    const ymd = await extractDate(name);
     const destination = ymd ? `${ymd.year}\\${ymd.year}.${ymd.month}.${ymd.day}` : null;
     return { name, basename: file, type, found, destination };
-  });
+  }));
   // console.log(newFiles);
   return newFiles;
 }
 
-const datePatterns = [
-  /IMG_(\d{4})(\d{2})(\d{2})_\d{6}.*\.mp4/, // IMG_20211210_040455_CINEMATIC.mp4
-  /IMG(\d{4})(\d{2})(\d{2})_\d{6}.*\.mp4/, // IMG20211210_040455_CINEMATIC.mp4 or IMG20211210040455_1.mp4
-  /IMG(\d{4})(\d{2})(\d{2})\d{6}.*\.mp4/, // IMG20211210040455_CINEMATIC.mp4 or IMG20211210040455_1.mp4
-  /IMG_(\d{4})(\d{2})(\d{2})_\d{6}.*\.jpg/, // IMG_20140101_040533_BURST1.jpg
-  /IMG(\d{4})(\d{2})(\d{2})\d{6}.*\.jpg/, // IMG20140101040533_BURST1.jpg
-  /VID_(\d{4})(\d{2})(\d{2})_\d{6}.*\.mp4/, // VID_20211118_205122_1456233458294.mp4
-  /VID(\d{4})(\d{2})(\d{2})\d{6}.*\.mp4/, // VID20211118205122_1456233458294.mp4
-  /video_(\d{4})-(\d{2})-(\d{2})_\d{2}-\d{2}-\d{2}.*\.mp4/, // video_2021-07-27_10-31-57.mp4 or video_2021-07-27.mp4
+const namePatterns: RegExp[] = [
+  /IMG_(\d{4})(\d{2})(\d{2})_\d{6}.*\.mp4/i, // IMG_20211210_040455_CINEMATIC.mp4
+  /IMG(\d{4})(\d{2})(\d{2})_\d{6}.*\.mp4/i, // IMG20211210_040455_CINEMATIC.mp4 or IMG20211210040455_1.mp4
+  /IMG(\d{4})(\d{2})(\d{2})\d{6}.*\.mp4/i, // IMG20211210040455_CINEMATIC.mp4 or IMG20211210040455_1.mp4
+  /IMG_(\d{4})(\d{2})(\d{2})_\d{6}.*\.jpg/i, // IMG_20140101_040533_BURST1.jpg
+  /IMG(\d{4})(\d{2})(\d{2})\d{6}.*\.jpg/i, // IMG20140101040533_BURST1.jpg
+  /VID_(\d{4})(\d{2})(\d{2})_\d{6}.*\.mp4/i, // VID_20211118_205122_1456233458294.mp4
+  /VID(\d{4})(\d{2})(\d{2})\d{6}.*\.mp4i/, // VID20211118205122_1456233458294.mp4
+  /video_(\d{4})-(\d{2})-(\d{2})_\d{2}-\d{2}-\d{2}.*\.mp4/i, // video_2021-07-27_10-31-57.mp4 or video_2021-07-27.mp4
+];
+const metaPatterns: RegExp[] = [
+  /DSC\d{5}\.(jpg|arw)$/i, // Matches DSC07837.JPG/ARW
 ];
 
-function extractDate(filename: string) {
-  for (const pattern of datePatterns) {
-    const match = filename.match(pattern);
+async function extractDate(filename: string) {
+  for (const pattern of namePatterns) {
+    const match = path.basename(filename).match(pattern);
     if (match) return { year: match[1], month: match[2], day: match[3] };
+  }
+  for (const pattern of metaPatterns) {
+    if (pattern.test(path.basename(filename))) {
+      const { mtime } = await fs.stat(filename);
+      return {
+        year: mtime.getFullYear().toString(),
+        month: (mtime.getMonth() + 1).toString().padStart(2, '0'), // Months are 0-indexed
+        day: mtime.getDate().toString().padStart(2, '0'),
+      };      
+    }
   }
   return null;
 }
