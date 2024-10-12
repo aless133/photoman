@@ -21,7 +21,7 @@ const config: ForgeConfig = {
     new AutoUnpackNativesPlugin({}),
     new WebpackPlugin({
       //нужно для показа картнок в dev
-      devContentSecurityPolicy:"default-src 'self' 'unsafe-inline' data:; script-src 'self' 'unsafe-eval' 'unsafe-inline' data:;img-src 'self' file:;",
+      devContentSecurityPolicy:"default-src 'self' 'unsafe-inline' data:; script-src 'self' 'unsafe-eval' 'unsafe-inline' data:;img-src 'self' file:;media-src 'self' file:;",
       mainConfig,
       renderer: {
         config: rendererConfig,
