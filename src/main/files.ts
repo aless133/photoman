@@ -29,7 +29,6 @@ export async function getFiles(): Promise<NewFile[]> {
     const destination = ymd ? `${ymd.year}\\${ymd.year}.${ymd.month}.${ymd.day}` : null;
     return { name, basename: file, type, found, destination };
   }));
-  // console.log(newFiles);
   return newFiles;
 }
 

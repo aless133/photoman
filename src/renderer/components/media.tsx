@@ -7,7 +7,7 @@ const getFileExtension = (url: string): string => {
 type MediaType = 'image' | 'video' | 'unsupported';
 
 const getMediaType = (fileExtension: string): MediaType => {
-  if (['jpg', 'jpeg', 'png', 'gif'].includes(fileExtension)) {
+  if (['jpg', 'jpeg', 'arw'].includes(fileExtension)) {
     return 'image';
   } else if (['mp4', 'webm', 'ogg'].includes(fileExtension)) {
     return 'video';
@@ -16,8 +16,30 @@ const getMediaType = (fileExtension: string): MediaType => {
   }
 };
 
+const modifySource = (source: string, fileExtension: string): string => {
+  if (fileExtension === 'arw') {
+    const isInArwSubfolder = source.includes('/arw/');
+    const pathParts = source.split('/');
+    const fileName = pathParts.pop(); // Get the file name
+
+    // Replace the file extension with .jpg
+    const newFileName = fileName?.replace(/\.[^/.]+$/, '.jpg'); // Change extension to .jpg
+
+    if (isInArwSubfolder) {
+      // Change to parent folder
+      return [...pathParts.slice(0, -1), newFileName].join('/'); // Remove the subfolder and add new file name
+    } else {
+      // Change to arw subfolder
+      return [...pathParts, 'arw', newFileName].join('/'); // Add 'arw' subfolder and new file name
+    }
+  }
+  return source; // Return original source for other extensions
+};
+
+
 const Media: React.FC<{ source: string }> = ({ source }) => {
   const fileExtension = getFileExtension(source);
+  const modifiedSource = modifySource(source, fileExtension);
   const mediaType = getMediaType(fileExtension);
 
   return (
