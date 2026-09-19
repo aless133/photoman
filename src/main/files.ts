@@ -11,7 +11,7 @@ async function getLibrary(dir: string) {
       if (!acc[file.name]) {
         acc[file.name] = [];
       }
-      acc[file.name].push(file.parentPath + '\\' + file.name);
+      acc[file.name].push(path.join(file.parentPath,file.name));
       return acc;
     }, {} as FileGroups);
   return libGroups;
@@ -40,7 +40,7 @@ const namePatterns: RegExp[] = [
   /IMG_(\d{4})(\d{2})(\d{2})_\d{6}.*\.jpg/i, // IMG_20140101_040533_BURST1.jpg
   /IMG(\d{4})(\d{2})(\d{2})\d{6}.*\.jpg/i, // IMG20140101040533_BURST1.jpg
   /VID_(\d{4})(\d{2})(\d{2})_\d{6}.*\.mp4/i, // VID_20211118_205122_1456233458294.mp4
-  /VID(\d{4})(\d{2})(\d{2})\d{6}.*\.mp4i/, // VID20211118205122_1456233458294.mp4
+  /VID(\d{4})(\d{2})(\d{2})\d{6}.*\.mp4/i, // VID20211118205122_1456233458294.mp4
   /video_(\d{4})-(\d{2})-(\d{2})_\d{2}-\d{2}-\d{2}.*\.mp4/i, // video_2021-07-27_10-31-57.mp4 or video_2021-07-27.mp4
 ];
 const metaPatterns: RegExp[] = [
