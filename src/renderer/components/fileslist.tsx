@@ -119,7 +119,7 @@ const FilesList: React.FC<{
         </div>
         <div className="filelist-header-selected">
           Выбрано <span className="count">{selected.length}</span>
-          <button onClick={copyFiles}>Копировать</button>
+          <button className="btn btn-success" onClick={copyFiles}>Копировать</button>
         </div>
       </div>
       <div className="filelist-list">

@@ -38,7 +38,11 @@ const FileItem: React.FC<{
         <FileDestination destination={destination} updateDestination={updateDestination} />
       </div>
       <div className="fileitem-select">
-        {!!destination && <input type="checkbox" checked={selected} onChange={e => updateSelected(e.target.checked)} />}
+        {!!destination && 
+          <div className="form-check">
+            <input className="form-check-input form-check-input-lg" type="checkbox" value="" checked={selected} onChange={e => updateSelected(e.target.checked)}/>
+          </div>
+        }
       </div>
     </div>
   );
