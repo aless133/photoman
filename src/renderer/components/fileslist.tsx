@@ -71,10 +71,7 @@ const FilesList: React.FC<{
   }, []);
 
   useEffect(() => {
-    window.photoman.onFilesChanged(handleFilesChange);
-    return () => {
-      window.photoman.offFilesChanged(handleFilesChange);
-    };
+    return window.photoman.onFilesChanged(handleFilesChange);
   }, [handleFilesChange]);
 
   const copyFiles = async () => {

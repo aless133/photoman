@@ -8,9 +8,10 @@ contextBridge.exposeInMainWorld('photoman', {
   getFilesDir: () => getFilesDir(),
   getLibDir: () => getLibDir(),
   onFilesChanged: (callback: () => void) => {
-    ipcRenderer.on('files-changed', () => callback());
-  },
-  offFilesChanged: (callback: () => void) => {
-    ipcRenderer.removeListener('files-changed', callback);
+    const listener = () => callback();
+    ipcRenderer.on('files:changed', listener);
+    return () => {
+      ipcRenderer.removeListener('files:changed', listener);
+    };
   },
 });
