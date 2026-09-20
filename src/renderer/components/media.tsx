@@ -23,9 +23,9 @@ const Media: React.FC<{ source: string }> = ({ source }) => {
   return (
     <div className="media-preview ratio ratio-4x3 overflow-hidden border rounded bg-dark">
       {mediaType === 'image' ? (
-        <img className="media-preview-content" src={`file://${source}`} alt="" loading="lazy" />
+        <img className="w-100 h-100 object-fit-contain" src={`file://${source}`} alt="" loading="lazy" />
       ) : mediaType === 'video' ? (
-        <video className="media-preview-content" controls preload="metadata">
+        <video className="w-100 h-100 object-fit-contain" controls preload="metadata">
           <source src={`file://${source}`} type={`video/${fileExtension}`} />
           Your browser does not support the video tag.
         </video>

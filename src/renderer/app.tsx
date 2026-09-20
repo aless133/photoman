@@ -4,10 +4,10 @@ import { Destinations } from './../types';
 function App() {
   const [destinations, setDestinations] = useState<Destinations>({});
   return (
-  <div>
+  <div className="p-3">
     <h2>Изображения и видео в каталоге {window.photoman.getFilesDir()}</h2>
     <FilesList destinations={destinations} setDestinations={setDestinations}/>
-  </div>    
+  </div>
   );
 }
 

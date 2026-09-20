@@ -20,8 +20,8 @@ const FileItem: React.FC<{
 
   const found = hasMatches
     ? file.found.map(f => (
-        <div key={f} className="fileitem-found-item">
-          <div className="fileitem-found-img">
+        <div key={f} className="d-flex align-items-start gap-2 pt-2 border-top">
+          <div className="fileitem-found-img flex-shrink-0">
             <Media source={f}/>
           </div>
           <div className="pt-1 small text-secondary text-break">
@@ -32,14 +32,19 @@ const FileItem: React.FC<{
     : null;
 
   return (
-    <div className={'fileitem d-flex align-items-start gap-3 px-3 py-3 border-bottom' + (selected ? ' fileitem-selected' : '')}>
-      <div className="fileitem-img">
+    <div
+      className={
+        'fileitem d-flex align-items-start gap-3 px-3 py-3 border-bottom ' +
+        (selected ? 'bg-success bg-opacity-10' : 'bg-dark')
+      }
+    >
+      <div className="fileitem-img flex-shrink-0">
         <Media source={file.name}/>
       </div>
-      <div className="fileitem-name pt-1 fw-semibold text-light text-break" title={file.basename}>
+      <div className="fileitem-name flex-shrink-0 pt-1 fw-semibold text-light text-break" title={file.basename}>
         {file.basename}
       </div>
-      <div className="fileitem-found d-flex flex-column gap-2">
+      <div className="fileitem-found d-flex flex-shrink-0 flex-column gap-2">
         <div className="d-flex align-items-center gap-2 small text-secondary">
           <span className={'badge rounded-pill ' + (hasMatches ? 'bg-success' : 'bg-secondary')}>
             {file.found?.length ?? 0}
@@ -48,14 +53,14 @@ const FileItem: React.FC<{
         </div>
         {found}
       </div>
-      <div className="fileitem-destination">
+      <div className="fileitem-destination flex-grow-1">
         <FileDestination destination={destination} updateDestination={updateDestination} />
       </div>
-      <div className="fileitem-select d-flex justify-content-center pt-1">
+      <div className="fileitem-select d-flex flex-shrink-0 justify-content-center pt-1">
         {!!destination &&
           <div className="form-check m-0 p-0">
             <input
-              className="form-check-input form-check-input-lg"
+              className="form-check-input fs-4"
               type="checkbox"
               aria-label={`Выбрать ${file.basename}`}
               checked={selected}

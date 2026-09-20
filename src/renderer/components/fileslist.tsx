@@ -93,17 +93,19 @@ const FilesList: React.FC<{
 
   if (state == 'loading')
     return (
-      <p>
-        Loading...<span className="loader"></span>
-      </p>
+      <div className="d-flex align-items-center gap-2">
+        <span>Загрузка...</span>
+        <span className="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+      </div>
     );
   else if (state == 'copying')
     return (
-      <p>
-        Copying...<span className="loader"></span>
-      </p>
+      <div className="d-flex align-items-center gap-2">
+        <span>Копирование...</span>
+        <span className="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+      </div>
     );
-  else if (state == 'error') return <p className="error">{error}</p>;
+  else if (state == 'error') return <p className="fs-5 fw-bold text-danger">{error}</p>;
 
   const foundCount = files.filter(file => !!file.found?.length).length;
   const destinationCount = files.filter(file => !!destinations[file.name]).length;
@@ -132,6 +134,7 @@ const FilesList: React.FC<{
         <div className="d-flex align-items-center gap-2 px-3 py-2 text-nowrap">
           <span className="small fw-bold text-uppercase text-secondary">Выбрано</span>
           <span className="badge rounded-pill bg-warning text-dark">{selected.length}</span>
+          {JSON.stringify(selected)}
           <button className="btn btn-success" onClick={copyFiles} disabled={selected.length === 0}>
             Копировать
           </button>
@@ -140,11 +143,11 @@ const FilesList: React.FC<{
 
       <div className="overflow-hidden border rounded shadow-sm">
         <div className="filelist-columns d-flex align-items-center gap-3 px-3 py-2 border-bottom small fw-bold text-uppercase text-secondary bg-dark" aria-hidden="true">
-          <span className="filelist-column-preview">Превью</span>
-          <span className="filelist-column-name">Файл</span>
-          <span className="filelist-column-found">В библиотеке</span>
-          <span className="filelist-column-destination">Назначение</span>
-          <span className="filelist-column-select">Выбор</span>
+          <span className="filelist-column-preview flex-shrink-0">Превью</span>
+          <span className="filelist-column-name flex-shrink-0">Файл</span>
+          <span className="filelist-column-found flex-shrink-0">В библиотеке</span>
+          <span className="filelist-column-destination flex-grow-1">Назначение</span>
+          <span className="filelist-column-select flex-shrink-0 text-center">Выбор</span>
         </div>
         <div className="filelist-list">
           {files.length > 0 ? (
