@@ -1,5 +1,7 @@
-const libDir = 'd:\\photo\\',
-  filesDir = 'd:\\!newphoto\\';
+import { app } from 'electron';
+import path from 'path';
 
-export const getLibDir = () => libDir;
-export const getFilesDir = () => filesDir;
+export function getDbPath(): string {
+  return path.join(app.getPath('userData'), 'photoman.db');
+}
+

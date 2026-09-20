@@ -1,11 +1,17 @@
 import { app, BrowserWindow, ipcMain } from 'electron';
 import started from 'electron-squirrel-startup';
+import { registerIpc } from './ipc';
 import { getFiles, copyFiles } from './files';
 import { createMenu } from './menu';
-import { getFilesDir } from './config';
+import { getDb } from './db';
+import { getFilesDir } from './../config';
 import { FSWatcher, watch } from 'chokidar';
 import installExtension, { REACT_DEVELOPER_TOOLS } from 'electron-devtools-installer';
-// import path from 'path';
+import path from 'path';
+
+const appDataRoot = app.getPath('appData');
+const folderName = app.isPackaged ? 'photoman' : 'photoman-dev';
+app.setPath('userData', path.join(appDataRoot, folderName));
 
 declare const MAIN_WINDOW_WEBPACK_ENTRY: string;
 declare const MAIN_WINDOW_PRELOAD_WEBPACK_ENTRY: string;
@@ -79,6 +85,8 @@ const createWindow = (): void => {
 
 createMenu();
 app.whenReady().then(async () => {
+  getDb();
+  registerIpc();
   await installExtension(REACT_DEVELOPER_TOOLS, { loadExtensionOptions: { allowFileAccess: true } })
     .then(extension => console.log(`Added Extension:  ${extension.name}`))
     .catch(err => console.log('REACT_DEVELOPER_TOOLS An error occurred: ', err));

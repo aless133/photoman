@@ -1,5 +1,5 @@
 import { contextBridge, ipcRenderer } from 'electron';
-import { getFilesDir, getLibDir } from '../main/config';
+import { getFilesDir, getLibDir } from '../config';
 import { Destinations } from './../types';
 
 contextBridge.exposeInMainWorld('photoman', {

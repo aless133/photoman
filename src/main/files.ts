@@ -1,7 +1,7 @@
 import { constants, promises as fs } from 'fs';
 import path from 'path';
 import { NewFile, FileGroups, Destinations } from './../types';
-import { getLibDir, getFilesDir } from './config';
+import { getLibDir, getFilesDir } from './../config';
 
 async function getLibrary(dir: string) {
   const libAll = await fs.readdir(dir, { recursive: true, withFileTypes: true });
