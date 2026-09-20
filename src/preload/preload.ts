@@ -3,8 +3,8 @@ import { getFilesDir, getLibDir } from '../config';
 import { Destinations } from './../types';
 
 contextBridge.exposeInMainWorld('photoman', {
-  getFiles: () => ipcRenderer.invoke('get-files'),
-  copyFiles: (d: Destinations) => ipcRenderer.invoke('copy-files', d),
+  getFiles: () => ipcRenderer.invoke('files:get'),
+  copyFiles: (d: Destinations) => ipcRenderer.invoke('files:copy', d),
   getFilesDir: () => getFilesDir(),
   getLibDir: () => getLibDir(),
   onFilesChanged: (callback: () => void) => {

@@ -1,7 +1,6 @@
-import { app, BrowserWindow, ipcMain } from 'electron';
+import { app, BrowserWindow } from 'electron';
 import started from 'electron-squirrel-startup';
 import { registerIpc } from './ipc';
-import { getFiles, copyFiles } from './files';
 import { createMenu } from './menu';
 import { getDb } from './db';
 import { getFilesDir } from './../config';
@@ -41,13 +40,25 @@ const startWatcher = (): void => {
 
   const notify = () => {
     if (mainWindow && !mainWindow.isDestroyed()) {
-      mainWindow.webContents.send('files-changed');
+      mainWindow.webContents.send('files:changed');
     }
   };
 
   watcher.on('add', notify);
   watcher.on('unlink', notify);
   watcher.on('change', notify);
+  watcher.on('error', error => {
+    // On Windows a photo can be temporarily locked by another application.
+    // Chokidar emits an `error` event when it cannot attach fs.watch to that
+    // particular file. Handling it keeps the watcher (and its directory-level
+    // subscription) alive, so later additions/removals still reach the UI.
+    const fsError = error as NodeJS.ErrnoException;
+    if (fsError.code === 'EBUSY') {
+      console.warn(`File watcher skipped a locked file: ${fsError.path ?? fsError.message}`);
+      return;
+    }
+    console.error('File watcher error:', error);
+  });
 };
 
 const stopWatcher = async (): Promise<void> => {
@@ -68,8 +79,6 @@ const createWindow = (): void => {
 
   mainWindow.maximize();
 
-  ipcMain.handle('get-files', () => getFiles());
-  ipcMain.handle('copy-files', (event, d) => copyFiles(d));
 
   startWatcher();
 
