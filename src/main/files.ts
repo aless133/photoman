@@ -1,4 +1,4 @@
-import { promises as fs } from 'fs';
+import { constants, promises as fs } from 'fs';
 import path from 'path';
 import { NewFile, FileGroups, Destinations } from './../types';
 import { getLibDir, getFilesDir } from './config';
@@ -71,7 +71,7 @@ export async function copyFiles(d: Destinations): Promise<void> {
       const destDir = path.join(getLibDir(), destination);
       await fs.mkdir(destDir, { recursive: true });
       const destinationFull = path.join(destDir, path.basename(source));
-      await fs.copyFile(source, destinationFull);
+      await fs.copyFile(source, destinationFull, constants.COPYFILE_EXCL);
       console.log(`Copied ${source} to ${destinationFull}`);
     } catch (error) {
       console.error(`Error copying ${source} to ${destination}:`, error);
