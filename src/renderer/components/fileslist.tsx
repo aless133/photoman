@@ -105,34 +105,65 @@ const FilesList: React.FC<{
     );
   else if (state == 'error') return <p className="error">{error}</p>;
 
+  const foundCount = files.filter(file => !!file.found?.length).length;
+  const destinationCount = files.filter(file => !!destinations[file.name]).length;
+
   return (
-    <div className="filelist">
-      <div className="filelist-header">
-        <div className="filelist-header-name">
-          {window.photoman.getFilesDir()} Файлов <span className="count">{files.length}</span>
+    <div className="d-flex flex-column gap-3">
+      <div className="filelist-summary d-flex overflow-hidden border rounded shadow-sm bg-dark">
+        <div className="filelist-summary-path d-flex align-items-center gap-2 px-3 py-2 border-end">
+          <span className="small fw-bold text-uppercase text-secondary">Входящие</span>
+          <span className="text-truncate text-light" title={window.photoman.getFilesDir()}>
+            {window.photoman.getFilesDir()}
+          </span>
+          <span className="badge rounded-pill bg-primary">{files.length}</span>
         </div>
-        <div className="filelist-header-found">
-          {window.photoman.getLibDir()} Найдено <span className="count">{files.filter(f => f.found).length}</span>
+        <div className="filelist-summary-path d-flex align-items-center gap-2 px-3 py-2 border-end">
+          <span className="small fw-bold text-uppercase text-secondary">Библиотека</span>
+          <span className="text-truncate text-light" title={window.photoman.getLibDir()}>
+            {window.photoman.getLibDir()}
+          </span>
+          <span className="badge rounded-pill bg-success">{foundCount}</span>
         </div>
-        <div className="filelist-header-destination">
-          Указано <span className="count">{files.filter(f => !!destinations[f.name]).length}</span>
+        <div className="d-flex align-items-center gap-2 px-3 py-2 border-end">
+          <span className="small fw-bold text-uppercase text-secondary">Назначено</span>
+          <span className="badge rounded-pill bg-info text-dark">{destinationCount}</span>
         </div>
-        <div className="filelist-header-selected">
-          Выбрано <span className="count">{selected.length}</span>
-          <button className="btn btn-success" onClick={copyFiles}>Копировать</button>
+        <div className="d-flex align-items-center gap-2 px-3 py-2 text-nowrap">
+          <span className="small fw-bold text-uppercase text-secondary">Выбрано</span>
+          <span className="badge rounded-pill bg-warning text-dark">{selected.length}</span>
+          <button className="btn btn-success" onClick={copyFiles} disabled={selected.length === 0}>
+            Копировать
+          </button>
         </div>
       </div>
-      <div className="filelist-list">
-        {files.map(file => (
-          <FileItem
-            key={file.name}
-            file={file}
-            destination={destinations[file.name]}
-            updateDestination={(val, all) => updateDestination(file.name, val, all)}
-            selected={selected.includes(file.name)}
-            updateSelected={isChecked => updateSelected(file.name, isChecked)}
-          />
-        ))}
+
+      <div className="overflow-hidden border rounded shadow-sm">
+        <div className="filelist-columns d-flex align-items-center gap-3 px-3 py-2 border-bottom small fw-bold text-uppercase text-secondary bg-dark" aria-hidden="true">
+          <span className="filelist-column-preview">Превью</span>
+          <span className="filelist-column-name">Файл</span>
+          <span className="filelist-column-found">В библиотеке</span>
+          <span className="filelist-column-destination">Назначение</span>
+          <span className="filelist-column-select">Выбор</span>
+        </div>
+        <div className="filelist-list">
+          {files.length > 0 ? (
+            files.map(file => (
+              <FileItem
+                key={file.name}
+                file={file}
+                destination={destinations[file.name]}
+                updateDestination={(val, all) => updateDestination(file.name, val, all)}
+                selected={selected.includes(file.name)}
+                updateSelected={isChecked => updateSelected(file.name, isChecked)}
+              />
+            ))
+          ) : (
+            <div className="px-3 py-5 text-center text-secondary">
+              В каталоге пока нет изображений или видео.
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );

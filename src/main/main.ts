@@ -57,7 +57,9 @@ const createWindow = (): void => {
       webSecurity: false,
       preload: MAIN_WINDOW_PRELOAD_WEBPACK_ENTRY,
     },
-  });  
+  });
+
+  mainWindow.maximize();
 
   ipcMain.handle('get-files', () => getFiles());
   ipcMain.handle('copy-files', (event, d) => copyFiles(d));

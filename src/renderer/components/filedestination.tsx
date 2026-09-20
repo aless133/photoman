@@ -5,19 +5,27 @@ const FileDestination: React.FC<{
   updateDestination: (value: string, all: boolean) => void;
 }> = ({ destination, updateDestination }) => {
   const [inputValue, setInputValue] = useState<string>(destination??'');
+  const isChanged = (destination??'') !== inputValue;
 
   useEffect(() => {
     setInputValue(destination??'');
   }, [destination]);  
 
   return (
-    <div className={'filedestination' + ((destination??'') !== inputValue ? ' filedestination-changed' : '')}>
-      <input className="form-control" type="text" value={inputValue} onChange={e => setInputValue(e.target.value)} />
-      <div className="filedestination-actions">
-        <button className="btn btn-sm btn-secondary" onClick={()=>updateDestination(inputValue,false)}>OK</button>
-        <button className="btn btn-sm btn-primary" onClick={()=>updateDestination(inputValue,true)}>Все</button>
-        <button className="btn btn-sm btn-warning" onClick={()=>setInputValue(destination??'')}>Отмена</button>
-      </div>
+    <div>
+      <input
+        className={'form-control' + (isChanged ? ' bg-info' : '')}
+        type="text"
+        value={inputValue}
+        onChange={e => setInputValue(e.target.value)}
+      />
+      {isChanged && (
+        <div className="d-flex gap-2 mt-2">
+          <button className="btn btn-sm btn-info flex-fill" onClick={()=>updateDestination(inputValue,false)}>OK</button>
+          <button className="btn btn-sm btn-secondary flex-fill" onClick={()=>updateDestination(inputValue,true)}>Все</button>
+          <button className="btn btn-sm btn-warning flex-fill" onClick={()=>setInputValue(destination??'')}>Отмена</button>
+        </div>
+      )}
     </div>
   );
 };

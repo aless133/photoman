@@ -21,16 +21,18 @@ const Media: React.FC<{ source: string }> = ({ source }) => {
   const mediaType = getMediaType(fileExtension);
 
   return (
-    <div>
+    <div className="media-preview ratio ratio-4x3 overflow-hidden border rounded bg-dark">
       {mediaType === 'image' ? (
-        <img src={`file://${source}`}/>
+        <img className="media-preview-content" src={`file://${source}`} alt="" loading="lazy" />
       ) : mediaType === 'video' ? (
-        <video controls>
+        <video className="media-preview-content" controls preload="metadata">
           <source src={`file://${source}`} type={`video/${fileExtension}`} />
           Your browser does not support the video tag.
         </video>
       ) : (
-        <p>Unsupported media type</p>
+        <span className="d-flex align-items-center justify-content-center p-3 small text-center text-secondary">
+          Формат не поддерживается
+        </span>
       )}
     </div>
   );
