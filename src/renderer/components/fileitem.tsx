@@ -10,7 +10,8 @@ const FileItem: React.FC<{
   selected: boolean;
   updateSelected: (isChecked: boolean) => void;
 }> = ({ file, destination, updateDestination, selected, updateSelected }) => {
-  const hasMatches = !!file.found?.length;
+  const matches = file.found ?? [];
+  const hasMatches = matches.length > 0;
 
   const getRelativePath = (fullPath: string, root: string): string => {
     const relativePath = fullPath.replace(root, '');
@@ -19,7 +20,7 @@ const FileItem: React.FC<{
   };
 
   const found = hasMatches
-    ? file.found.map(f => (
+    ? matches.map(f => (
         <div key={f} className="d-flex align-items-start gap-2 pt-2 border-top">
           <div className="fileitem-found-img flex-shrink-0">
             <Media source={f}/>

@@ -1,4 +1,5 @@
 import { app, BrowserWindow, ipcMain } from 'electron';
+import started from 'electron-squirrel-startup';
 import { getFiles, copyFiles } from './files';
 import { createMenu } from './menu';
 import { getFilesDir } from './config';
@@ -9,7 +10,7 @@ import installExtension, { REACT_DEVELOPER_TOOLS } from 'electron-devtools-insta
 declare const MAIN_WINDOW_WEBPACK_ENTRY: string;
 declare const MAIN_WINDOW_PRELOAD_WEBPACK_ENTRY: string;
 
-if (require('electron-squirrel-startup')) {
+if (started) {
   app.quit();
 }
 

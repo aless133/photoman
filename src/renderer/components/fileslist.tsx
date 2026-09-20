@@ -58,7 +58,7 @@ const FilesList: React.FC<{
     } catch (err) {
       console.error(err);
       setState('error');
-      setError(err.toString());
+      setError(String(err));
     }
   };
 
@@ -87,7 +87,7 @@ const FilesList: React.FC<{
     } catch (err) {
       console.error(err);
       setState('error');
-      setError(err.toString());
+      setError(String(err));
     }
   };
 

@@ -3,18 +3,15 @@
     "jsx": "react-jsx",
     "target": "ES6",
     "allowJs": true,
-    "module": "commonjs",
+    "module": "Node16",
     "skipLibCheck": true,
     "esModuleInterop": true,
     "noImplicitAny": true,
     "sourceMap": true,
-    "baseUrl": ".",
+    "rootDir": ".",
     "outDir": "dist",
-    "moduleResolution": "node",
-    "resolveJsonModule": true,
-    "paths": {
-      "*": ["node_modules/*"]
-    }
+    "moduleResolution": "Node16",
+    "resolveJsonModule": true
   },
   "include": ["src/photoman.d.ts", "src/**/*"]
 }
