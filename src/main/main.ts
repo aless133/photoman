@@ -80,7 +80,7 @@ const createWindow = (): void => {
 createMenu();
 app.whenReady().then(async () => {
   await installExtension(REACT_DEVELOPER_TOOLS, { loadExtensionOptions: { allowFileAccess: true } })
-    .then(name => console.log(`Added Extension:  ${name}`))
+    .then(extension => console.log(`Added Extension:  ${extension.name}`))
     .catch(err => console.log('REACT_DEVELOPER_TOOLS An error occurred: ', err));
   createWindow();
 });
