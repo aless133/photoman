@@ -1,9 +1,0 @@
-{
-	"folders":
-	[
-		{
-			"path": "/d/projects/photoman/",
-			"file_exclude_patterns": ["*.jpg","*.gif","*.png","*.sublime*"]			
-		}
-	]
-}
