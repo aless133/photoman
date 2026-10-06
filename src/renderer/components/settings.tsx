@@ -1,7 +1,11 @@
 import React, { useState } from 'react';
 import { SettingsConfig, SettingsStatus } from '../../types';
 
-function Settings({ initial, onSaved }: { initial: SettingsStatus; onSaved: (status: SettingsStatus) => void }) {
+function Settings({ initial, onSaved, onCancel }: {
+  initial: SettingsStatus;
+  onSaved: (status: SettingsStatus) => void;
+  onCancel: () => void;
+}) {
   const [config, setConfig] = useState<SettingsConfig>({ filesDir: initial.filesDir, libDir: initial.libDir });
   const [errors, setErrors] = useState(initial.errors);
   const [busy, setBusy] = useState(false);
@@ -49,6 +53,7 @@ function Settings({ initial, onSaved }: { initial: SettingsStatus; onSaved: (sta
         </fieldset>
         {errors.length > 0 && <div className="alert alert-danger" role="alert">{errors.map(message => <div key={message}>{message}</div>)}</div>}
         <button className="btn btn-success" type="submit" disabled={busy}>{busy ? 'Сохранение...' : 'Сохранить'}</button>
+        <button className="btn btn-secondary ms-2" type="button" disabled={busy || !initial.valid} onClick={onCancel}>Отмена</button>
       </form>
     </main>
   );

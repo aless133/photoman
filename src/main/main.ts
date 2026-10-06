@@ -91,7 +91,11 @@ const createWindow = (): void => {
   }
 };
 
-createMenu();
+createMenu(action => {
+  if (mainWindow && !mainWindow.isDestroyed()) {
+    mainWindow.webContents.send('menu:action', action);
+  }
+});
 app.whenReady().then(async () => {
   getDb();
   registerIpc(async () => {

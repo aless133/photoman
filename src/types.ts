@@ -10,5 +10,7 @@ export type NewFile = {
 
 export type Destinations = Record<string, string>;
 
+export type MenuAction = 'open-settings';
+
 export type SettingsConfig = { filesDir: string; libDir: string };
 export type SettingsStatus = SettingsConfig & { valid: boolean; errors: string[] };

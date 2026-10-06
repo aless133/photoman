@@ -1,4 +1,4 @@
-import { Destinations, NewFile, SettingsConfig, SettingsStatus } from './types';
+import { Destinations, MenuAction, NewFile, SettingsConfig, SettingsStatus } from './types';
 
 declare global {
   interface Window {
@@ -10,6 +10,7 @@ declare global {
       copyFiles: (d: Destinations) => Promise<void>;
       getFilesDir: () => string;
       getLibDir: () => string;
+      onMenuAction: (callback: (action: MenuAction) => void) => () => void;
       onFilesChanged: (callback: () => void) => () => void;
     };
   }

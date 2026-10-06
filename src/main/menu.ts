@@ -1,25 +1,16 @@
 import { Menu } from 'electron';
+import { MenuAction } from '../types';
 
-export function createMenu() {
+export function createMenu(onMenuAction: (action: MenuAction) => void) {
   const menu = Menu.buildFromTemplate([
     {
       label: 'Файл',
       submenu: [
-      //   {
-      //     label: 'Изменить рабочий каталог',
-      //     click: () => {
-      //       console.log('New File clicked');
-      //       // Add your logic here
-      //     },
-      //   },
-      //   {
-      //     label: 'Изменить каталог хранилища',
-      //     click: () => {
-      //       console.log('Open File clicked');
-      //       // Add your logic here
-      //     },
-      //   },
-      //   { type: 'separator' },
+        {
+          label: 'Настройки',
+          click: () => onMenuAction('open-settings'),
+        },
+        { type: 'separator' },
         {
           label: 'Выход',
           role: 'quit', // This will automatically close the app

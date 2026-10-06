@@ -1,22 +1,35 @@
 import React, { useEffect, useState } from 'react';
-import FilesList from './components/fileslist';
 import Settings from './components/settings';
-import { Destinations, SettingsStatus } from './../types';
+import { SettingsStatus } from './../types';
+
+type Screen = 'empty' | 'settings';
+
 function App() {
-  const [destinations, setDestinations] = useState<Destinations>({});
   const [status, setStatus] = useState<SettingsStatus>();
+  const [currentScreen, setCurrentScreen] = useState<Screen>('empty');
   const [error, setError] = useState('');
   useEffect(() => {
+    const unsubscribe = window.photoman.onMenuAction(action => {
+      switch (action) {
+        case 'open-settings':
+          setCurrentScreen('settings');
+          break;
+      }
+    });
     window.photoman.getConfig().then(setStatus).catch(err => setError(String(err)));
+    return unsubscribe;
   }, []);
   if (!status) return <div className="p-3">{error || 'Проверка каталогов...'}</div>;
-  if (!status.valid) return <Settings initial={status} onSaved={setStatus} />;
-  return (
-  <div className="p-3">
-    <h2>Изображения и видео в каталоге {window.photoman.getFilesDir()}</h2>
-    <FilesList destinations={destinations} setDestinations={setDestinations}/>
-  </div>
-  );
+  const screen = status.valid ? currentScreen : 'settings';
+  switch (screen) {
+    case 'settings':
+      return <Settings initial={status} onSaved={saved => {
+        setStatus(saved);
+        setCurrentScreen('empty');
+      }} onCancel={() => setCurrentScreen('empty')} />;
+    case 'empty':
+      return null;
+  }
 }
 
 export default App;

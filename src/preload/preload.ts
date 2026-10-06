@@ -1,5 +1,5 @@
 import { contextBridge, ipcRenderer } from 'electron';
-import { Destinations, SettingsConfig, SettingsStatus } from './../types';
+import { Destinations, MenuAction, SettingsConfig, SettingsStatus } from './../types';
 
 let settings: SettingsConfig = { filesDir: '', libDir: '' };
 async function loadSettings(channel: string, config?: SettingsConfig): Promise<SettingsStatus> {
@@ -16,6 +16,13 @@ contextBridge.exposeInMainWorld('photoman', {
   chooseDirectory: () => ipcRenderer.invoke('config:choose-directory'),
   getFilesDir: () => settings.filesDir,
   getLibDir: () => settings.libDir,
+  onMenuAction: (callback: (action: MenuAction) => void) => {
+    const listener = (_event: Electron.IpcRendererEvent, action: MenuAction) => callback(action);
+    ipcRenderer.on('menu:action', listener);
+    return () => {
+      ipcRenderer.removeListener('menu:action', listener);
+    };
+  },
   onFilesChanged: (callback: () => void) => {
     const listener = () => callback();
     ipcRenderer.on('files:changed', listener);
