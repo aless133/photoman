@@ -1,9 +1,9 @@
 @echo off
 setlocal
 
-set DB_PATH=C:\Users\User\AppData\Roaming\photoman-dev\photoman.db
-set PORT=1234
-set URL=http://localhost:%PORT%
+set "DB_PATH=%APPDATA%\photoman-dev\photoman.db"
+set "PORT=1234"
+set "URL=http://localhost:%PORT%"
 
 netstat -ano | findstr ":%PORT% " | findstr "LISTENING" >nul
 if %ERRORLEVEL% EQU 0 (
