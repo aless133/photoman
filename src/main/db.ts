@@ -14,6 +14,11 @@ export function getDb(): Database.Database {
 
 function initSchema(db: Database.Database): void {
   db.exec(`
+    CREATE TABLE IF NOT EXISTS setting (
+      key       TEXT PRIMARY KEY NOT NULL,
+      value     TEXT NOT NULL
+    );
+
     CREATE TABLE IF NOT EXISTS files (
       id        INTEGER PRIMARY KEY,
       path      TEXT UNIQUE NOT NULL,
@@ -25,6 +30,7 @@ function initSchema(db: Database.Database): void {
     );
     CREATE INDEX IF NOT EXISTS idx_name_size ON files(name, size);
   `);
+
 }
 
 export function closeDb(): void {

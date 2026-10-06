@@ -3,7 +3,7 @@ import started from 'electron-squirrel-startup';
 import { registerIpc } from './ipc';
 import { createMenu } from './menu';
 import { getDb } from './db';
-import { getFilesDir } from './../config';
+import { getFilesDir, getSettingsStatus } from './settings';
 import { FSWatcher, watch } from 'chokidar';
 import installExtension, { REACT_DEVELOPER_TOOLS } from 'electron-devtools-installer';
 import path from 'path';
@@ -80,7 +80,6 @@ const createWindow = (): void => {
   mainWindow.maximize();
 
 
-  startWatcher();
 
   mainWindow.on('closed', () => {
     mainWindow = null;                     // чтобы notify не дёргал мёртвое окно
@@ -95,7 +94,11 @@ const createWindow = (): void => {
 createMenu();
 app.whenReady().then(async () => {
   getDb();
-  registerIpc();
+  registerIpc(async () => {
+    await stopWatcher();
+    startWatcher();
+  });
+  if ((await getSettingsStatus()).valid) startWatcher();
   await installExtension(REACT_DEVELOPER_TOOLS, { loadExtensionOptions: { allowFileAccess: true } })
     .then(extension => console.log(`Added Extension:  ${extension.name}`))
     .catch(err => console.log('REACT_DEVELOPER_TOOLS An error occurred: ', err));
@@ -109,8 +112,9 @@ app.on('window-all-closed', async () => {
   }
 });
 
-app.on('activate', () => {
+app.on('activate', async () => {
   if (BrowserWindow.getAllWindows().length === 0) {
+    if ((await getSettingsStatus()).valid) startWatcher();
     createWindow();
   }
 });

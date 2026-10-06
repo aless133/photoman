@@ -9,3 +9,6 @@ export type NewFile = {
 };
 
 export type Destinations = Record<string, string>;
+
+export type SettingsConfig = { filesDir: string; libDir: string };
+export type SettingsStatus = SettingsConfig & { valid: boolean; errors: string[] };
