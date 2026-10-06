@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
-import { SettingsConfig, SettingsStatus } from '../../types';
+import { SettingsConfig, SettingsSaveResult, SettingsStatus } from '../../types';
 
-function Settings({ initial, onSaved, onCancel }: {
+function Settings({ initial, onSaved, onCancel, onSaving }: {
   initial: SettingsStatus;
-  onSaved: (status: SettingsStatus) => void;
+  onSaved: (status: SettingsSaveResult) => void;
   onCancel: () => void;
+  onSaving: () => void;
 }) {
   const [config, setConfig] = useState<SettingsConfig>({ filesDir: initial.filesDir, libDir: initial.libDir });
   const [errors, setErrors] = useState(initial.errors);
@@ -22,6 +23,7 @@ function Settings({ initial, onSaved, onCancel }: {
   const save = async (event: React.FormEvent) => {
     event.preventDefault();
     setBusy(true);
+    onSaving();
     try {
       const result = await window.photoman.saveConfig(config);
       if (result.valid) onSaved(result);

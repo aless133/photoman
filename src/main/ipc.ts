@@ -1,5 +1,5 @@
 import { dialog, ipcMain, WebContents } from 'electron';
-import { getLibDir, getSettingsStatus, saveSettings } from './settings';
+import { getFilesDir, getLibDir, getSettingsStatus, saveSettings } from './settings';
 import { getFiles, copyFiles } from './files';
 import { updateLibrary } from './library';
 import path from 'path';
@@ -25,16 +25,21 @@ export function registerIpc(onSettingsSaved: () => Promise<void>): void {
   ipcMain.handle('config:get', () => getSettingsStatus());
   ipcMain.handle('config:save', (event, config) => enqueue(async () => {
     const previousLibraryDir = getLibDir();
+    const previousFilesDir = getFilesDir();
     const status = await saveSettings(config);
+    let libraryUpdateScheduled = false;
     if (status.valid) {
       await onSettingsSaved();
       const normalize = (directory: string) => process.platform === 'win32'
         ? path.normalize(directory).toLowerCase() : path.normalize(directory);
-      if (!previousLibraryDir || normalize(previousLibraryDir) !== normalize(status.libDir)) {
-        await refreshLibrary(event.sender);
+      if (!previousLibraryDir || normalize(previousLibraryDir) !== normalize(status.libDir)
+        || normalize(previousFilesDir) !== normalize(status.filesDir)) {
+        libraryUpdateScheduled = true;
+        // Return saved settings first so the renderer can show the update screen.
+        void enqueue(() => refreshLibrary(event.sender)).catch(() => undefined);
       }
     }
-    return status;
+    return { ...status, libraryUpdateScheduled };
   }));
   ipcMain.handle('config:choose-directory', async () => {
     const result = await dialog.showOpenDialog({ properties: ['openDirectory'] });

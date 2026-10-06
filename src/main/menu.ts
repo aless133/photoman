@@ -7,16 +7,17 @@ export function createMenu(onMenuAction: (action: MenuAction) => void) {
       label: 'Файл',
       submenu: [
         {
-          label: 'Настройки',
-          click: () => onMenuAction('open-settings'),
-        },
-        {
           label: 'Поиск дубликатов',
           click: () => onMenuAction('open-duplicates'),
         },
         {
           label: 'Обновить библиотеку',
           click: () => onMenuAction('update-library'),
+        },
+        { type: 'separator' },
+        {
+          label: 'Настройки',
+          click: () => onMenuAction('open-settings'),
         },
         { type: 'separator' },
         {

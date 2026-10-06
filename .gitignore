@@ -90,3 +90,6 @@ typings/
 
 # Electron-Forge
 out/
+
+*.sublime-workspace
+*.sublime-project

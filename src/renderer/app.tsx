@@ -4,7 +4,7 @@ import LibraryProgressView from './components/library-progress';
 import Duplicates from './components/duplicates/duplicates';
 import { LibraryProgress, SettingsStatus } from './../types';
 
-type Screen = 'empty' | 'settings' | 'duplicates';
+type Screen = 'empty' | 'settings' | 'duplicates' | 'library';
 
 function App() {
   const [status, setStatus] = useState<SettingsStatus>();
@@ -22,6 +22,7 @@ function App() {
           setCurrentScreen('settings');
           break;
         case 'update-library':
+          setCurrentScreen('library');
           setError('');
           setLibraryProgress({ phase: 'scanning', processed: 0, total: null });
           window.photoman.updateLibrary()
@@ -42,13 +43,31 @@ function App() {
   const screen = status.valid ? currentScreen : 'settings';
   let content: React.ReactNode = null;
   switch (screen) {
+    case 'library':
+      content = <main>
+        <div className="p-3 p-sm-4 mx-auto library-progress">
+          <div className="d-flex justify-content-between align-items-center gap-3">
+            <h1 className="h4 mb-0">Обновление библиотеки</h1>
+            <button className="btn btn-primary" onClick={() => setCurrentScreen('empty')}>Закрыть</button>
+          </div>
+          {(libraryProgress?.phase === 'scanning' || libraryProgress?.phase === 'indexing') &&
+            <p className="small text-secondary mt-2 mb-0">При закрытии экрана обновление продолжится.</p>}
+        </div>
+        {libraryProgress && <LibraryProgressView progress={libraryProgress} />}
+      </main>;
+      break;
     case 'duplicates':
       content = <Duplicates />;
       break;
     case 'settings':
-      content = <Settings initial={status} onSaved={saved => {
+      content = <Settings initial={status} onSaving={() => setLibraryProgress(undefined)} onSaved={saved => {
         setStatus(saved);
-        setCurrentScreen('empty');
+        if (saved.libraryUpdateScheduled) {
+          setLibraryProgress(previous => previous ?? { phase: 'scanning', processed: 0, total: null });
+          setCurrentScreen('library');
+        } else {
+          setCurrentScreen('empty');
+        }
         setError('');
       }} onCancel={() => setCurrentScreen('empty')} />;
       break;
@@ -58,10 +77,7 @@ function App() {
         : null;
       break;
   }
-  return <>
-    {libraryProgress && <LibraryProgressView progress={libraryProgress} />}
-    {content}
-  </>;
+  return <>{content}</>;
 }
 
 export default App;
