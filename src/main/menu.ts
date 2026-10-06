@@ -11,6 +11,10 @@ export function createMenu(onMenuAction: (action: MenuAction) => void) {
           click: () => onMenuAction('open-settings'),
         },
         {
+          label: 'Поиск дубликатов',
+          click: () => onMenuAction('open-duplicates'),
+        },
+        {
           label: 'Обновить библиотеку',
           click: () => onMenuAction('update-library'),
         },

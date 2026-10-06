@@ -1,5 +1,5 @@
 import { contextBridge, ipcRenderer } from 'electron';
-import { Destinations, LibraryProgress, MenuAction, SettingsConfig, SettingsStatus } from './../types';
+import { Destinations, DuplicateMode, LibraryProgress, MenuAction, SettingsConfig, SettingsStatus } from './../types';
 
 let settings: SettingsConfig = { filesDir: '', libDir: '' };
 async function loadSettings(channel: string, config?: SettingsConfig): Promise<SettingsStatus> {
@@ -10,6 +10,7 @@ async function loadSettings(channel: string, config?: SettingsConfig): Promise<S
 
 contextBridge.exposeInMainWorld('photoman', {
   getFiles: () => ipcRenderer.invoke('files:get'),
+  findDuplicates: (mode: DuplicateMode) => ipcRenderer.invoke('duplicates:find', mode),
   copyFiles: (d: Destinations) => ipcRenderer.invoke('files:copy', d),
   updateLibrary: () => ipcRenderer.invoke('library:update'),
   getConfig: () => loadSettings('config:get'),

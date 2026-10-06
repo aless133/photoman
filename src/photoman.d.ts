@@ -1,9 +1,10 @@
-import { Destinations, LibraryProgress, MenuAction, NewFile, SettingsConfig, SettingsStatus } from './types';
+import { Destinations, DuplicateGroup, DuplicateMode, LibraryProgress, MenuAction, NewFile, SettingsConfig, SettingsStatus } from './types';
 
 declare global {
   interface Window {
     photoman: {
       getFiles: () => Promise<NewFile[]>;
+      findDuplicates: (mode: DuplicateMode) => Promise<DuplicateGroup[]>;
       getConfig: () => Promise<SettingsStatus>;
       saveConfig: (config: SettingsConfig) => Promise<SettingsStatus>;
       chooseDirectory: () => Promise<string | null>;

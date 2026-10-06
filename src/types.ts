@@ -10,7 +10,11 @@ export type NewFile = {
 
 export type Destinations = Record<string, string>;
 
-export type MenuAction = 'open-settings' | 'update-library';
+export type MenuAction = 'open-settings' | 'update-library' | 'open-duplicates';
+
+export type DuplicateMode = 'name' | 'name-size';
+export type DuplicateFile = { id: number; path: string; size: number };
+export type DuplicateGroup = { name: string; size: number | null; files: DuplicateFile[] };
 
 export type LibraryProgress = {
   phase: 'scanning' | 'indexing' | 'done' | 'error';

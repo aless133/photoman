@@ -21,9 +21,9 @@ const FileDestination: React.FC<{
       />
       {isChanged && (
         <div className="d-flex gap-2 mt-2">
-          <button className="btn btn-sm btn-info flex-fill" onClick={()=>updateDestination(inputValue,false)}>OK</button>
+          <button className="btn btn-sm btn-secondary flex-fill" onClick={()=>updateDestination(inputValue,false)}>OK</button>
           <button className="btn btn-sm btn-secondary flex-fill" onClick={()=>updateDestination(inputValue,true)}>Все</button>
-          <button className="btn btn-sm btn-warning flex-fill" onClick={()=>setInputValue(destination??'')}>Отмена</button>
+          <button className="btn btn-sm btn-primary flex-fill" onClick={()=>setInputValue(destination??'')}>Отмена</button>
         </div>
       )}
     </div>

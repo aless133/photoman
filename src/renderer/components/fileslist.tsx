@@ -132,7 +132,7 @@ const FilesList: React.FC<{
           <span className="small fw-bold text-uppercase text-secondary">Выбрано</span>
           <span className="badge rounded-pill bg-warning text-dark">{selected.length}</span>
           {JSON.stringify(selected)}
-          <button className="btn btn-success" onClick={copyFiles} disabled={selected.length === 0}>
+          <button className="btn btn-secondary" onClick={copyFiles} disabled={selected.length === 0}>
             Копировать
           </button>
         </div>

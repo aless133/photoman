@@ -3,6 +3,7 @@ import { getLibDir, getSettingsStatus, saveSettings } from './settings';
 import { getFiles, copyFiles } from './files';
 import { updateLibrary } from './library';
 import path from 'path';
+import { findDuplicates } from './duplicates';
 
 export function registerIpc(onSettingsSaved: () => Promise<void>): void {
   // Keep settings changes and manual refreshes in order.
@@ -19,6 +20,7 @@ export function registerIpc(onSettingsSaved: () => Promise<void>): void {
   ipcMain.handle('files:get', () => getFiles());
   ipcMain.handle('files:copy', (event, d) => copyFiles(d));
   ipcMain.handle('library:update', event => enqueue(() => refreshLibrary(event.sender)));
+  ipcMain.handle('duplicates:find', (_event, mode) => enqueue(async () => findDuplicates(mode)));
 
   ipcMain.handle('config:get', () => getSettingsStatus());
   ipcMain.handle('config:save', (event, config) => enqueue(async () => {

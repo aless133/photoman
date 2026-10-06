@@ -79,7 +79,22 @@ const createWindow = (): void => {
 
   mainWindow.maximize();
 
-
+  mainWindow.webContents.setWindowOpenHandler(({ url }) => ({
+    action: url.startsWith('file:') ? 'allow' : 'deny',
+    overrideBrowserWindowOptions: {
+      show: false,
+      webPreferences: {
+        preload: '',
+        nodeIntegration: false,
+        contextIsolation: true,
+      },
+    },
+  }));
+  mainWindow.webContents.on('did-create-window', previewWindow => {
+    previewWindow.setMenu(null);
+    previewWindow.maximize();
+    previewWindow.once('ready-to-show', () => previewWindow.show());
+  });
 
   mainWindow.on('closed', () => {
     mainWindow = null;                     // чтобы notify не дёргал мёртвое окно

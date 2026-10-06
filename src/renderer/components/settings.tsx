@@ -46,14 +46,14 @@ function Settings({ initial, onSaved, onCancel }: {
             <div className="input-group">
               <input id={key} className="form-control" value={config[key]} disabled={busy}
                 onChange={event => setConfig({ ...config, [key]: event.target.value })} />
-              <button type="button" className="btn btn-secondary" disabled={busy} onClick={() => choose(key)}>Обзор...</button>
+              <button type="button" className="btn btn-primary" disabled={busy} onClick={() => choose(key)}>Обзор...</button>
             </div>
           </div>
         ))}
         </fieldset>
         {errors.length > 0 && <div className="alert alert-danger" role="alert">{errors.map(message => <div key={message}>{message}</div>)}</div>}
         <button className="btn btn-success" type="submit" disabled={busy}>{busy ? 'Сохранение...' : 'Сохранить'}</button>
-        <button className="btn btn-secondary ms-2" type="button" disabled={busy || !initial.valid} onClick={onCancel}>Отмена</button>
+        <button className="btn btn-primary ms-2" type="button" disabled={busy || !initial.valid} onClick={onCancel}>Отмена</button>
       </form>
     </main>
   );
