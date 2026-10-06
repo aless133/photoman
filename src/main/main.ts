@@ -86,9 +86,9 @@ const createWindow = (): void => {
   });  
 
   mainWindow.loadURL(MAIN_WINDOW_WEBPACK_ENTRY);
-  if (!app.isPackaged) {
-    mainWindow.webContents.openDevTools();
-  }
+  // if (!app.isPackaged) {
+  //   mainWindow.webContents.openDevTools();
+  // }
 };
 
 createMenu(action => {

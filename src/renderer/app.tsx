@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import Settings from './components/settings';
-import { SettingsStatus } from './../types';
+import LibraryProgressView from './components/library-progress';
+import { LibraryProgress, SettingsStatus } from './../types';
 
 type Screen = 'empty' | 'settings';
 
@@ -8,8 +9,9 @@ function App() {
   const [status, setStatus] = useState<SettingsStatus>();
   const [currentScreen, setCurrentScreen] = useState<Screen>('empty');
   const [error, setError] = useState('');
-  const [libraryMessage, setLibraryMessage] = useState('');
+  const [libraryProgress, setLibraryProgress] = useState<LibraryProgress>();
   useEffect(() => {
+    const unsubscribeProgress = window.photoman.onLibraryProgress(setLibraryProgress);
     const unsubscribe = window.photoman.onMenuAction(action => {
       switch (action) {
         case 'open-settings':
@@ -17,34 +19,42 @@ function App() {
           break;
         case 'update-library':
           setError('');
-          setLibraryMessage('Обновление библиотеки...');
+          setLibraryProgress({ phase: 'scanning', processed: 0, total: null });
           window.photoman.updateLibrary()
-            .then(count => setLibraryMessage(`Библиотека обновлена. Файлов: ${count}.`))
-            .catch(err => {
-              setLibraryMessage('');
-              setError(String(err));
-            });
+            .catch(err => setLibraryProgress(previous => ({
+              phase: 'error', processed: previous?.processed ?? 0,
+              total: previous?.total ?? null, error: String(err),
+            })));
           break;
       }
     });
     window.photoman.getConfig().then(setStatus).catch(err => setError(String(err)));
-    return unsubscribe;
+    return () => {
+      unsubscribe();
+      unsubscribeProgress();
+    };
   }, []);
   if (!status) return <div className="p-3">{error || 'Проверка каталогов...'}</div>;
   const screen = status.valid ? currentScreen : 'settings';
+  let content: React.ReactNode = null;
   switch (screen) {
     case 'settings':
-      return <Settings initial={status} onSaved={saved => {
+      content = <Settings initial={status} onSaved={saved => {
         setStatus(saved);
         setCurrentScreen('empty');
         setError('');
-        setLibraryMessage('');
       }} onCancel={() => setCurrentScreen('empty')} />;
+      break;
     case 'empty':
-      return error || libraryMessage
-        ? <div className={`p-3${error ? ' text-danger' : ''}`} role="status">{error || libraryMessage}</div>
+      content = error
+        ? <div className="p-3 text-danger" role="status">{error}</div>
         : null;
+      break;
   }
+  return <>
+    {libraryProgress && <LibraryProgressView progress={libraryProgress} />}
+    {content}
+  </>;
 }
 
 export default App;

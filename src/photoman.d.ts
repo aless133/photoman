@@ -1,4 +1,4 @@
-import { Destinations, MenuAction, NewFile, SettingsConfig, SettingsStatus } from './types';
+import { Destinations, LibraryProgress, MenuAction, NewFile, SettingsConfig, SettingsStatus } from './types';
 
 declare global {
   interface Window {
@@ -9,6 +9,7 @@ declare global {
       chooseDirectory: () => Promise<string | null>;
       copyFiles: (d: Destinations) => Promise<void>;
       updateLibrary: () => Promise<number>;
+      onLibraryProgress: (callback: (progress: LibraryProgress) => void) => () => void;
       getFilesDir: () => string;
       getLibDir: () => string;
       onMenuAction: (callback: (action: MenuAction) => void) => () => void;

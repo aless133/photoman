@@ -2,6 +2,13 @@ body {
   min-width: 1100px;
 }
 
+.library-progress {
+  width: 100%;
+  max-width: 800px;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
 .filelist-summary-path {
   min-width: 0;
   flex: 1 1 0;

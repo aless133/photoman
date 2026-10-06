@@ -1,4 +1,4 @@
-import { dialog, ipcMain } from 'electron';
+import { dialog, ipcMain, WebContents } from 'electron';
 import { getLibDir, getSettingsStatus, saveSettings } from './settings';
 import { getFiles, copyFiles } from './files';
 import { updateLibrary } from './library';
@@ -12,13 +12,16 @@ export function registerIpc(onSettingsSaved: () => Promise<void>): void {
     pending = result.catch(() => undefined);
     return result;
   };
+  const refreshLibrary = (sender: WebContents) => updateLibrary(progress => {
+    if (!sender.isDestroyed()) sender.send('library:progress', progress);
+  });
 
   ipcMain.handle('files:get', () => getFiles());
   ipcMain.handle('files:copy', (event, d) => copyFiles(d));
-  ipcMain.handle('library:update', () => enqueue(updateLibrary));
+  ipcMain.handle('library:update', event => enqueue(() => refreshLibrary(event.sender)));
 
   ipcMain.handle('config:get', () => getSettingsStatus());
-  ipcMain.handle('config:save', (_event, config) => enqueue(async () => {
+  ipcMain.handle('config:save', (event, config) => enqueue(async () => {
     const previousLibraryDir = getLibDir();
     const status = await saveSettings(config);
     if (status.valid) {
@@ -26,7 +29,7 @@ export function registerIpc(onSettingsSaved: () => Promise<void>): void {
       const normalize = (directory: string) => process.platform === 'win32'
         ? path.normalize(directory).toLowerCase() : path.normalize(directory);
       if (!previousLibraryDir || normalize(previousLibraryDir) !== normalize(status.libDir)) {
-        await updateLibrary();
+        await refreshLibrary(event.sender);
       }
     }
     return status;
