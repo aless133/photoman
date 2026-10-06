@@ -8,11 +8,22 @@ function App() {
   const [status, setStatus] = useState<SettingsStatus>();
   const [currentScreen, setCurrentScreen] = useState<Screen>('empty');
   const [error, setError] = useState('');
+  const [libraryMessage, setLibraryMessage] = useState('');
   useEffect(() => {
     const unsubscribe = window.photoman.onMenuAction(action => {
       switch (action) {
         case 'open-settings':
           setCurrentScreen('settings');
+          break;
+        case 'update-library':
+          setError('');
+          setLibraryMessage('Обновление библиотеки...');
+          window.photoman.updateLibrary()
+            .then(count => setLibraryMessage(`Библиотека обновлена. Файлов: ${count}.`))
+            .catch(err => {
+              setLibraryMessage('');
+              setError(String(err));
+            });
           break;
       }
     });
@@ -26,9 +37,13 @@ function App() {
       return <Settings initial={status} onSaved={saved => {
         setStatus(saved);
         setCurrentScreen('empty');
+        setError('');
+        setLibraryMessage('');
       }} onCancel={() => setCurrentScreen('empty')} />;
     case 'empty':
-      return null;
+      return error || libraryMessage
+        ? <div className={`p-3${error ? ' text-danger' : ''}`} role="status">{error || libraryMessage}</div>
+        : null;
   }
 }
 

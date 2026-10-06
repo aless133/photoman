@@ -8,6 +8,7 @@ declare global {
       saveConfig: (config: SettingsConfig) => Promise<SettingsStatus>;
       chooseDirectory: () => Promise<string | null>;
       copyFiles: (d: Destinations) => Promise<void>;
+      updateLibrary: () => Promise<number>;
       getFilesDir: () => string;
       getLibDir: () => string;
       onMenuAction: (callback: (action: MenuAction) => void) => () => void;

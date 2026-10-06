@@ -10,6 +10,10 @@ export function createMenu(onMenuAction: (action: MenuAction) => void) {
           label: 'Настройки',
           click: () => onMenuAction('open-settings'),
         },
+        {
+          label: 'Обновить библиотеку',
+          click: () => onMenuAction('update-library'),
+        },
         { type: 'separator' },
         {
           label: 'Выход',

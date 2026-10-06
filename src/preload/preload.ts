@@ -11,6 +11,7 @@ async function loadSettings(channel: string, config?: SettingsConfig): Promise<S
 contextBridge.exposeInMainWorld('photoman', {
   getFiles: () => ipcRenderer.invoke('files:get'),
   copyFiles: (d: Destinations) => ipcRenderer.invoke('files:copy', d),
+  updateLibrary: () => ipcRenderer.invoke('library:update'),
   getConfig: () => loadSettings('config:get'),
   saveConfig: (config: SettingsConfig) => loadSettings('config:save', config),
   chooseDirectory: () => ipcRenderer.invoke('config:choose-directory'),
