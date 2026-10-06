@@ -1,0 +1,15 @@
+/.webpack/
+/node_modules/
+/out/
+
+*.log
+
+.env
+.git-credentials
+sftp-config.json
+
+*.sublime-workspace
+*.sublime-project
+*.code-workspace
+
+bundle-stats*.html
