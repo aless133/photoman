@@ -37,6 +37,9 @@
     "ts-node": "^10.9.2",
     "typescript": "6.0.3"
   },
+  "overrides": {
+    "@electron/rebuild": "4.2.0"
+  },
   "keywords": [],
   "author": {
     "name": "aless133",
