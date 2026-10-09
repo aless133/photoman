@@ -17,6 +17,8 @@ const config: ForgeConfig = {
     extraResource: [
       path.resolve(__dirname, 'assets', 'icon.ico'),
       path.resolve(__dirname, 'assets', 'icon.png'),
+      path.resolve(__dirname, 'node_modules',
+        `exiftool-vendored.${process.platform === 'win32' ? 'exe' : 'pl'}`),
     ],
   },
   rebuildConfig: {},
