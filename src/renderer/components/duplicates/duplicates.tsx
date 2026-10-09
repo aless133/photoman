@@ -57,7 +57,10 @@ export function DuplicateFolderCard({ folder }: { folder: DuplicateFolder }) {
     </div>}
     {folder.mainFolders.length === 0 && folder.identicalFolders.length === 0
       && <p className="small text-secondary">Все файлы имеют копии в более каноническом размещении.</p>}
-    {folder.files.map(file => <FolderFile key={file.source.id} file={file} />)}
+    <details className="mt-2">
+      <summary>Файлы ({folder.files.length})</summary>
+      {folder.files.map(file => <FolderFile key={file.source.id} file={file} />)}
+    </details>
   </section>;
 }
 
@@ -93,6 +96,11 @@ export default function Duplicates() {
     }
   };
   const pages = Math.ceil((folders?.length ?? groups?.length ?? 0) / PAGE_SIZE);
+  const pagination = pages > 1 && <nav className="d-flex align-items-center gap-3 mb-3" aria-label="Страницы групп дубликатов">
+    <button className="btn btn-primary" disabled={page === 0} onClick={() => setPage(page - 1)}>Назад</button>
+    <span>Страница {page + 1} из {pages}</span>
+    <button className="btn btn-primary" disabled={page + 1 >= pages} onClick={() => setPage(page + 1)}>Далее</button>
+  </nav>;
   return <main className="p-3">
     <h1 className="h4">Поиск дубликатов</h1>
     <p className="text-secondary small">Поиск по базе библиотеки. Совпадения имени учитывают регистр и расширение.
@@ -128,11 +136,7 @@ export default function Duplicates() {
       `Групп: ${groups.length.toLocaleString('ru-RU')}. Файлов: ${groups.reduce((sum, group) => sum + group.files.length, 0).toLocaleString('ru-RU')}.`}</p>}
     {folders !== null && <p role="status">{folders.length === 0 ? 'Подходящие папки не найдены.' :
       `Групп папок: ${folders.length.toLocaleString('ru-RU')}. Файлов в наборах: ${folders.reduce((sum, folder) => sum + folder.files.length, 0).toLocaleString('ru-RU')}.`}</p>}
-    {pages > 1 && <nav className="d-flex align-items-center gap-3 mb-3" aria-label="Страницы групп дубликатов">
-      <button className="btn btn-primary" disabled={page === 0} onClick={() => setPage(page - 1)}>Назад</button>
-      <span>Страница {page + 1} из {pages}</span>
-      <button className="btn btn-primary" disabled={page + 1 >= pages} onClick={() => setPage(page + 1)}>Далее</button>
-    </nav>}
+    {pagination}
     {groups?.slice(page * PAGE_SIZE, (page + 1) * PAGE_SIZE).map(group => <section
       key={JSON.stringify([group.name, group.size])} className="border rounded p-3 mb-3">
       <h2 className="h6 text-break">{group.name} <span className="badge bg-secondary">{group.files.length}</span>
@@ -142,5 +146,6 @@ export default function Duplicates() {
       </div>
     </section>)}
     {folders?.slice(page * PAGE_SIZE, (page + 1) * PAGE_SIZE).map(folder => <DuplicateFolderCard key={folder.path} folder={folder} />)}
+    {pagination}
   </main>;
 }
