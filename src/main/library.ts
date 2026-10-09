@@ -3,7 +3,8 @@ import path from 'path';
 import { getDb } from './db';
 import { getLibDir } from './settings';
 import { getFileDate } from './library-date';
-import { LibraryProgress } from '../types';
+import { getFilePlacement } from './library-placement';
+import { FilePlacement, LibraryProgress } from '../types';
 
 export async function updateLibrary(onProgress: (progress: LibraryProgress) => void = () => undefined): Promise<number> {
   let processed = 0;
@@ -20,16 +21,17 @@ export async function updateLibrary(onProgress: (progress: LibraryProgress) => v
       .filter(entry => entry.isFile());
     total = entries.length;
     onProgress({ phase: 'indexing', processed, total });
-    const insert = db.prepare('INSERT INTO files (path, name, size, date) VALUES (?, ?, ?, ?)');
-    const batch: { path: string; name: string; size: number; date: string | null }[] = [];
+    const insert = db.prepare('INSERT INTO files (path, name, size, date, placement) VALUES (?, ?, ?, ?, ?)');
+    const batch: { path: string; name: string; size: number; date: string | null; placement: FilePlacement }[] = [];
     const writeBatch = db.transaction(() => {
-      for (const file of batch) insert.run(file.path, file.name, file.size, file.date);
+      for (const file of batch) insert.run(file.path, file.name, file.size, file.date, file.placement);
     });
     let lastNotification = Date.now();
     for (const entry of entries) {
       const filename = path.join(entry.parentPath, entry.name);
       const stat = await fs.stat(filename);
-      batch.push({ path: filename, name: entry.name, size: stat.size, date: getFileDate(entry.name) });
+      batch.push({ path: filename, name: entry.name, size: stat.size, date: getFileDate(entry.name),
+        placement: getFilePlacement(filename, directory) });
       if (batch.length >= 200 || Date.now() - lastNotification >= 100 || processed + batch.length === total) {
         writeBatch();
         processed += batch.length;

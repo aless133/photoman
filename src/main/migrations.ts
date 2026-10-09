@@ -19,6 +19,12 @@ const migrations: string[] = [
     );
     CREATE INDEX idx_name_size ON files(name, size);
   `,
+  `ALTER TABLE files ADD COLUMN placement TEXT NOT NULL DEFAULT 'other'
+    CHECK (placement IN ('canonical', 'semi-canonical', 'other'));`,
+  // Placement is rebuilt during library indexing; no data conversion is needed.
+  `ALTER TABLE files DROP COLUMN placement;
+    ALTER TABLE files ADD COLUMN placement INTEGER NOT NULL DEFAULT 0
+      CHECK (placement IN (0, 1, 2));`,
 ];
 
 export function migrateSchema(db: Database.Database): void {

@@ -1,9 +1,14 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { DuplicateGroup, DuplicateMode } from '../../../types';
+import { DuplicateGroup, DuplicateMode, FilePlacement } from '../../../types';
 import Preview from './preview';
 
 const PAGE_SIZE = 20;
 const formatSize = (size: number) => `${size.toLocaleString('ru-RU')} байт`;
+const placementLabels = {
+  [FilePlacement.Canonical]: { label: 'Каноническое', className: 'border-success', badgeClassName: 'bg-success' },
+  [FilePlacement.SemiCanonical]: { label: 'Полуканоническое', className: 'border-info', badgeClassName: 'bg-info' },
+  [FilePlacement.Other]: { label: '', className: '', badgeClassName: '' },
+};
 
 export default function Duplicates() {
   const [mode, setMode] = useState<DuplicateMode>('name-size');
@@ -60,7 +65,12 @@ export default function Duplicates() {
       <h2 className="h6 text-break">{group.name} <span className="badge bg-secondary">{group.files.length}</span>
         {group.size !== null && <span className="ms-2 text-secondary fw-normal">{formatSize(group.size)}</span>}</h2>
       <div className="duplicates-grid">
-        {group.files.map(file => <article key={file.id} className="border rounded p-2">
+        {group.files.map(file => <article key={file.id} className={`border rounded p-2 ${placementLabels[file.placement].className}`}>
+          {placementLabels[file.placement].label && <div className="mb-2">
+            <span className={`badge ${placementLabels[file.placement].badgeClassName}`}>
+              {placementLabels[file.placement].label}
+            </span>
+          </div>}
           <Preview path={file.path} />
           <div className="small mt-2 text-break" title={file.path}>{file.path}</div>
           <div className="small text-secondary mt-1">{formatSize(file.size)}</div>
