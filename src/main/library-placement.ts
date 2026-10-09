@@ -7,7 +7,7 @@ export function getFilePlacement(filename: string, library: string): FilePlaceme
   if (path.isAbsolute(relative)) return FilePlacement.Other;
   const parts = relative.split(path.sep);
   if (parts.length < 3 || !/^\d{4}$/.test(parts[0])) return FilePlacement.Other;
-  const match = /^(\d{4})\.(\d{2})(?:\.(\d{2}))?$/.exec(parts[1]);
+  const match = /^(\d{4})\.(\d{2})(?:\.(\d{2}))?(?: +.*)?$/.exec(parts[1]);
   if (!match || match[1] !== parts[0]) return FilePlacement.Other;
   const monthNumber = Number(match[2]);
   if (monthNumber < 1 || monthNumber > 12) return FilePlacement.Other;
