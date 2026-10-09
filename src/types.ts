@@ -28,9 +28,14 @@ export type LibraryProgress = {
   phase: 'scanning' | 'indexing' | 'done' | 'error';
   processed: number;
   total: number | null;
+  startedAt: number;
+  finishedAt?: number;
+  readMetadata: boolean;
   error?: string;
 };
 
+export type LibraryUpdateOptions = { readMetadata: boolean };
+
 export type SettingsConfig = { filesDir: string; libDir: string };
 export type SettingsStatus = SettingsConfig & { valid: boolean; errors: string[] };
-export type SettingsSaveResult = SettingsStatus & { libraryUpdateScheduled: boolean };
+export type SettingsSaveResult = SettingsStatus & { libraryUpdateRequired: boolean };

@@ -6,14 +6,22 @@ import { getFileDate } from './library-date';
 import { readMetadataDate } from './library-metadata';
 import { app } from 'electron';
 import { ExifTool } from 'exiftool-vendored';
+import { canReadCaptureMetadata } from '../media-formats';
 import { getFilePlacement } from './library-placement';
-import { FilePlacement, LibraryProgress } from '../types';
+import { FilePlacement, LibraryProgress, LibraryUpdateOptions } from '../types';
 
-export async function updateLibrary(onProgress: (progress: LibraryProgress) => void = () => undefined): Promise<number> {
+export async function updateLibrary(onProgress: (progress: LibraryProgress) => void = () => undefined,
+  options: LibraryUpdateOptions = { readMetadata: true }): Promise<number> {
   let processed = 0;
   let total: number | null = null;
   let metadataTool: ExifTool | undefined;
-  onProgress({ phase: 'scanning', processed, total });
+  const startedAt = Date.now();
+  const notify = (phase: LibraryProgress['phase'], error?: string) => onProgress({
+    phase, processed, total, startedAt, readMetadata: options.readMetadata,
+    ...((phase === 'done' || phase === 'error') ? { finishedAt: Date.now() } : {}),
+    ...(error ? { error } : {}),
+  });
+  notify('scanning');
   try {
     const db = getDb();
     db.prepare('DELETE FROM files').run();
@@ -24,7 +32,7 @@ export async function updateLibrary(onProgress: (progress: LibraryProgress) => v
     const entries = (await fs.readdir(directory, { recursive: true, withFileTypes: true }))
       .filter(entry => entry.isFile());
     total = entries.length;
-    onProgress({ phase: 'indexing', processed, total });
+    notify('indexing');
     const insert = db.prepare('INSERT INTO files (path, name, size, date, placement) VALUES (?, ?, ?, ?, ?)');
     const batch: { path: string; name: string; size: number; date: string | null; placement: FilePlacement }[] = [];
     const writeBatch = db.transaction(() => {
@@ -35,7 +43,7 @@ export async function updateLibrary(onProgress: (progress: LibraryProgress) => v
       const filename = path.join(entry.parentPath, entry.name);
       const stat = await fs.stat(filename);
       let date = getFileDate(entry.name);
-      if (!date) {
+      if (options.readMetadata && !date && stat.size > 0 && canReadCaptureMetadata(entry.name)) {
         metadataTool ??= new ExifTool({
           // Webpack cannot resolve the package's dynamic binary import in dev.
           exiftoolPath: path.join(app.isPackaged ? process.resourcesPath
@@ -55,15 +63,15 @@ export async function updateLibrary(onProgress: (progress: LibraryProgress) => v
         writeBatch();
         processed += batch.length;
         batch.length = 0;
-        onProgress({ phase: 'indexing', processed, total });
+        notify('indexing');
         lastNotification = Date.now();
         await new Promise<void>(resolve => setImmediate(resolve));
       }
     }
-    onProgress({ phase: 'done', processed, total });
+    notify('done');
     return processed;
   } catch (error) {
-    onProgress({ phase: 'error', processed, total, error: String(error) });
+    notify('error', String(error));
     throw error;
   } finally {
     await metadataTool?.end();

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import Settings from './components/settings';
 import LibraryProgressView from './components/library-progress';
 import Duplicates from './components/duplicates/duplicates';
@@ -11,6 +11,27 @@ function App() {
   const [currentScreen, setCurrentScreen] = useState<Screen>('empty');
   const [error, setError] = useState('');
   const [libraryProgress, setLibraryProgress] = useState<LibraryProgress>();
+  const [readMetadata, setReadMetadata] = useState(false);
+  const [libraryStarting, setLibraryStarting] = useState(false);
+  const libraryRequestPending = useRef(false);
+  const startLibraryUpdate = async () => {
+    if (libraryRequestPending.current) return;
+    libraryRequestPending.current = true;
+    setLibraryStarting(true);
+    setLibraryProgress(undefined);
+    try {
+      await window.photoman.updateLibrary({ readMetadata });
+    } catch (err) {
+      setLibraryProgress(previous => ({
+        phase: 'error', processed: previous?.processed ?? 0, total: previous?.total ?? null,
+        startedAt: previous?.startedAt ?? Date.now(), finishedAt: Date.now(), readMetadata,
+        error: String(err),
+      }));
+    } finally {
+      libraryRequestPending.current = false;
+      setLibraryStarting(false);
+    }
+  };
   useEffect(() => {
     const unsubscribeProgress = window.photoman.onLibraryProgress(setLibraryProgress);
     const unsubscribe = window.photoman.onMenuAction(action => {
@@ -24,12 +45,6 @@ function App() {
         case 'update-library':
           setCurrentScreen('library');
           setError('');
-          setLibraryProgress({ phase: 'scanning', processed: 0, total: null });
-          window.photoman.updateLibrary()
-            .catch(err => setLibraryProgress(previous => ({
-              phase: 'error', processed: previous?.processed ?? 0,
-              total: previous?.total ?? null, error: String(err),
-            })));
           break;
       }
     });
@@ -53,17 +68,18 @@ function App() {
           {(libraryProgress?.phase === 'scanning' || libraryProgress?.phase === 'indexing') &&
             <p className="small text-secondary mt-2 mb-0">При закрытии экрана обновление продолжится.</p>}
         </div>
-        {libraryProgress && <LibraryProgressView progress={libraryProgress} />}
+        <LibraryProgressView progress={libraryProgress} starting={libraryStarting} readMetadata={readMetadata}
+          onReadMetadataChange={setReadMetadata} onStart={startLibraryUpdate} />
       </main>;
       break;
     case 'duplicates':
       content = <Duplicates />;
       break;
     case 'settings':
-      content = <Settings initial={status} onSaving={() => setLibraryProgress(undefined)} onSaved={saved => {
+      content = <Settings initial={status} onSaved={saved => {
         setStatus(saved);
-        if (saved.libraryUpdateScheduled) {
-          setLibraryProgress(previous => previous ?? { phase: 'scanning', processed: 0, total: null });
+        if (saved.libraryUpdateRequired) {
+          setLibraryProgress(undefined);
           setCurrentScreen('library');
         } else {
           setCurrentScreen('empty');

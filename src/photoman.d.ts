@@ -1,4 +1,4 @@
-import { Destinations, DuplicateFolder, DuplicateGroup, DuplicateMode, LibraryProgress, MenuAction, NewFile, SettingsConfig, SettingsSaveResult, SettingsStatus } from './types';
+import { Destinations, DuplicateFolder, DuplicateGroup, DuplicateMode, LibraryProgress, LibraryUpdateOptions, MenuAction, NewFile, SettingsConfig, SettingsSaveResult, SettingsStatus } from './types';
 
 declare global {
   interface Window {
@@ -10,7 +10,7 @@ declare global {
       saveConfig: (config: SettingsConfig) => Promise<SettingsSaveResult>;
       chooseDirectory: () => Promise<string | null>;
       copyFiles: (d: Destinations) => Promise<void>;
-      updateLibrary: () => Promise<number>;
+      updateLibrary: (options: LibraryUpdateOptions) => Promise<number>;
       onLibraryProgress: (callback: (progress: LibraryProgress) => void) => () => void;
       getFilesDir: () => string;
       getLibDir: () => string;

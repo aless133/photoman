@@ -5,6 +5,7 @@ import { updateLibrary } from './library';
 import path from 'path';
 import { findDuplicates } from './duplicates';
 import { findDuplicateFolders } from './duplicate-folders';
+import { LibraryUpdateOptions } from '../types';
 
 export function registerIpc(onSettingsSaved: () => Promise<void>): void {
   // Keep settings changes and manual refreshes in order.
@@ -14,13 +15,17 @@ export function registerIpc(onSettingsSaved: () => Promise<void>): void {
     pending = result.catch(() => undefined);
     return result;
   };
-  const refreshLibrary = (sender: WebContents) => updateLibrary(progress => {
+  const refreshLibrary = (sender: WebContents, options: LibraryUpdateOptions) => updateLibrary(progress => {
     if (!sender.isDestroyed()) sender.send('library:progress', progress);
-  });
+  }, options);
 
   ipcMain.handle('files:get', () => getFiles());
   ipcMain.handle('files:copy', (event, d) => copyFiles(d));
-  ipcMain.handle('library:update', event => enqueue(() => refreshLibrary(event.sender)));
+  ipcMain.handle('library:update', (event, options: LibraryUpdateOptions) => {
+    if (typeof options?.readMetadata !== 'boolean') throw new Error('Укажите, нужно ли читать метаданные.');
+    const selection = { readMetadata: options.readMetadata };
+    return enqueue(() => refreshLibrary(event.sender, selection));
+  });
   ipcMain.handle('duplicates:find', (_event, mode) => enqueue(async () => findDuplicates(mode)));
   ipcMain.handle('duplicates:folders', () => enqueue(async () => findDuplicateFolders()));
 
@@ -29,19 +34,17 @@ export function registerIpc(onSettingsSaved: () => Promise<void>): void {
     const previousLibraryDir = getLibDir();
     const previousFilesDir = getFilesDir();
     const status = await saveSettings(config);
-    let libraryUpdateScheduled = false;
+    let libraryUpdateRequired = false;
     if (status.valid) {
       await onSettingsSaved();
       const normalize = (directory: string) => process.platform === 'win32'
         ? path.normalize(directory).toLowerCase() : path.normalize(directory);
       if (!previousLibraryDir || normalize(previousLibraryDir) !== normalize(status.libDir)
         || normalize(previousFilesDir) !== normalize(status.filesDir)) {
-        libraryUpdateScheduled = true;
-        // Return saved settings first so the renderer can show the update screen.
-        void enqueue(() => refreshLibrary(event.sender)).catch(() => undefined);
+        libraryUpdateRequired = true;
       }
     }
-    return { ...status, libraryUpdateScheduled };
+    return { ...status, libraryUpdateRequired };
   }));
   ipcMain.handle('config:choose-directory', async () => {
     const result = await dialog.showOpenDialog({ properties: ['openDirectory'] });

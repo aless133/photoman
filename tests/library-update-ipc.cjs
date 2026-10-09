@@ -1,0 +1,53 @@
+require('ts-node').register({ files: true });
+const assert = require('node:assert/strict');
+const path = require('node:path');
+const Module = require('node:module');
+const handlers = new Map();
+const originalLoad = Module._load;
+const settings = require('../src/main/settings');
+const library = require('../src/main/library');
+let libraryDir = path.resolve('previous-library');
+const importDir = path.resolve('import');
+const updates = [], messages = [];
+settings.getLibDir = () => libraryDir;
+settings.getFilesDir = () => importDir;
+settings.saveSettings = async config => {
+  libraryDir = config.libDir;
+  return { ...config, valid: true, errors: [] };
+};
+library.updateLibrary = async (onProgress, options) => {
+  updates.push(options);
+  const startedAt = Date.now();
+  onProgress({ phase: 'done', processed: 1, total: 1, startedAt, finishedAt: startedAt, readMetadata: options.readMetadata });
+  return 1;
+};
+Module._load = function(request, ...args) {
+  if (request === 'electron') return { ipcMain: { handle: (name, callback) => handlers.set(name, callback) } };
+  return originalLoad.call(this, request, ...args);
+};
+const { registerIpc } = require('../src/main/ipc');
+Module._load = originalLoad;
+const event = { sender: { isDestroyed: () => false, send: (...message) => messages.push(message) } };
+async function main() {
+  registerIpc(async () => undefined);
+  const saved = await handlers.get('config:save')(event, { filesDir: importDir, libDir: path.resolve('new-library') });
+  assert.equal(saved.libraryUpdateRequired, true);
+  assert.deepEqual(updates, [], 'Saving settings must await explicit Start, rather than launching metadata reads');
+  const same = await handlers.get('config:save')(event, { filesDir: importDir, libDir: libraryDir });
+  assert.equal(same.libraryUpdateRequired, false);
+  const update = handlers.get('library:update');
+  assert.throws(() => update(event, undefined), /метаданные/);
+  assert.throws(() => update(event, { readMetadata: 'false' }), /метаданные/);
+  const selection = { readMetadata: false };
+  const request = update(event, selection);
+  selection.readMetadata = true;
+  await request;
+  assert.equal(updates[0].readMetadata, false, 'Capture the checkbox value at Start');
+  assert.equal(await update(event, { readMetadata: true }), 1);
+  assert.equal(updates[1].readMetadata, true);
+  assert.equal(messages.length, 2);
+  assert.equal(messages[0][0], 'library:progress');
+  assert.equal(messages[0][1].readMetadata, false);
+  console.log('Library IPC: explicit start, both options, immutable selection, validation and progress passed');
+}
+main().catch(error => { console.error(error); process.exitCode = 1; });

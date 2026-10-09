@@ -1,8 +1,7 @@
 import { getDb } from './db';
 import type Database from 'better-sqlite3';
 import { DuplicateGroup, DuplicateMode, FilePlacement } from '../types';
-
-const videoExtensions = ['.mp4', '.mov', '.m4v', '.avi', '.mkv', '.webm', '.ogg', '.ogv', '.mpeg', '.mpg', '.mts', '.m2ts', '.3gp', '.wmv'];
+import { videoExtensions } from '../media-formats';
 
 export function findDuplicates(mode: DuplicateMode, db: Database.Database = getDb()): DuplicateGroup[] {
   if (mode !== 'name' && mode !== 'name-size' && mode !== 'video-size') throw new Error('Неизвестный режим поиска дубликатов.');

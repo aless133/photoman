@@ -37,5 +37,8 @@ const renamedGroup = findDuplicates('video-size', db).find(g => g.size === 400);
 assert.deepEqual(renamedGroup.files.map(f => f.path),
   ['library/repeated.mp4', 'month/new-name.mp4', 'backup/repeated.mp4']);
 assert.throws(() => findDuplicates('unknown', db));
+add.run('dvd/VTS_01_1.VOB', 'VTS_01_1.VOB', 500, 1, 0);
+add.run('legacy/BUSHU.ASF', 'BUSHU.ASF', 500, 0, 0);
+assert.equal(findDuplicates('video-size', db).find(g => g.size === 500).files.length, 2);
 db.close();
 console.log('Duplicates: renamed videos, extensions, ranks, sizes, missing files and existing modes passed');
