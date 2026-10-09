@@ -26,7 +26,7 @@ function FolderFile({ file }: { file: DuplicateFolderFile }) {
   const [open, setOpen] = useState(false);
   return <details className="border rounded p-2 mt-2" onToggle={event => setOpen(event.currentTarget.open)}>
     <summary className="text-break">{file.name} — {formatSize(file.source.size)}
-      <span className="text-secondary ms-2">Более канонических копий: {file.copies.length}</span>
+      <span className="text-secondary ms-2">Копий: {file.copies.length}</span>
     </summary>
     {open && <>
       <p className="small text-break mt-2">Исходный файл: {file.source.path}</p>
@@ -36,6 +36,29 @@ function FolderFile({ file }: { file: DuplicateFolderFile }) {
       </div>
     </>}
   </details>;
+}
+
+export function DuplicateFolderCard({ folder }: { folder: DuplicateFolder }) {
+  return <section className="border rounded p-3 mb-3">
+    <h2 className="h6 text-break">{folder.identicalFolders.length ? 'Полностью одинаковые папки' : folder.path}
+      <span className="badge bg-secondary ms-2">{folder.files.length} файлов</span></h2>
+    {folder.identicalFolders.length > 0 && <>
+      <p className="small text-secondary">Совпадают имена, размеры и количество всех файлов, включая подпапки.
+        {folder.mainFolders.length === 0 && ' Главная папка среди них не выбрана.'}</p>
+      <ul className="small text-break">
+        {[folder.path, ...folder.identicalFolders].map(directory => <li key={directory}>{directory}</li>)}
+      </ul>
+    </>}
+    {folder.mainFolders.length > 0 && <div className="small mb-2">
+      <strong>{folder.mainFolders.length === 1 ? 'Главная папка:' : 'Главные папки:'}</strong>
+      <ul className="text-break">
+        {folder.mainFolders.map(main => <li key={main.path}>{main.path} — дополнительных файлов: {main.extraFiles}</li>)}
+      </ul>
+    </div>}
+    {folder.mainFolders.length === 0 && folder.identicalFolders.length === 0
+      && <p className="small text-secondary">Все файлы имеют копии в более каноническом размещении.</p>}
+    {folder.files.map(file => <FolderFile key={file.source.id} file={file} />)}
+  </section>;
 }
 
 export default function Duplicates() {
@@ -95,15 +118,16 @@ export default function Duplicates() {
       Одинаковый размер не гарантирует одинаковое содержимое.
     </p>}
     {mode === 'folders' && <p className="text-secondary small">
-      Все файлы папки, включая подпапки, должны иметь копии с тем же именем и размером
-      в более каноническом размещении: для прочих — полуканоническом или каноническом,
-      для полуканонических — каноническом. Вложенные подходящие папки объединяются в родительскую.
+      Сравниваются имена, размеры и количество файлов, включая подпапки. Папка, содержащая весь набор
+      и дополнительные файлы, считается главной независимо от каноничности. Полностью одинаковые папки
+      показываются одной группой. Также показываются папки, все файлы которых имеют более канонические копии.
+      Родительская папка не считается копией собственной подпапки.
     </p>}
     {error && <div className="alert alert-danger" role="alert">{error}</div>}
     {groups !== null && <p role="status">{groups.length === 0 ? 'Дубликаты не найдены.' :
       `Групп: ${groups.length.toLocaleString('ru-RU')}. Файлов: ${groups.reduce((sum, group) => sum + group.files.length, 0).toLocaleString('ru-RU')}.`}</p>}
     {folders !== null && <p role="status">{folders.length === 0 ? 'Подходящие папки не найдены.' :
-      `Папок: ${folders.length.toLocaleString('ru-RU')}. Файлов: ${folders.reduce((sum, folder) => sum + folder.files.length, 0).toLocaleString('ru-RU')}.`}</p>}
+      `Групп папок: ${folders.length.toLocaleString('ru-RU')}. Файлов в наборах: ${folders.reduce((sum, folder) => sum + folder.files.length, 0).toLocaleString('ru-RU')}.`}</p>}
     {pages > 1 && <nav className="d-flex align-items-center gap-3 mb-3" aria-label="Страницы групп дубликатов">
       <button className="btn btn-primary" disabled={page === 0} onClick={() => setPage(page - 1)}>Назад</button>
       <span>Страница {page + 1} из {pages}</span>
@@ -117,10 +141,6 @@ export default function Duplicates() {
         {group.files.map(file => <FileCard key={file.id} file={file} />)}
       </div>
     </section>)}
-    {folders?.slice(page * PAGE_SIZE, (page + 1) * PAGE_SIZE).map(folder => <section
-      key={folder.path} className="border rounded p-3 mb-3">
-      <h2 className="h6 text-break">{folder.path} <span className="badge bg-secondary">{folder.files.length} файлов</span></h2>
-      {folder.files.map(file => <FolderFile key={file.source.id} file={file} />)}
-    </section>)}
+    {folders?.slice(page * PAGE_SIZE, (page + 1) * PAGE_SIZE).map(folder => <DuplicateFolderCard key={folder.path} folder={folder} />)}
   </main>;
 }
