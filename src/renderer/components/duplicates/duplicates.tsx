@@ -85,10 +85,15 @@ export default function Duplicates() {
       }}>
         <option value="name">По имени</option>
         <option value="name-size">По имени и размеру</option>
+        <option value="video-size">Видеофайлы по размеру</option>
         <option value="folders">Папки целиком из дубликатов</option>
       </select>
       <button className="btn btn-secondary" disabled={busy} onClick={search}>Найти дубликаты</button>
     </div>
+    {mode === 'video-size' && <p className="text-secondary small">
+      Видеофайлы группируются по точному размеру в байтах, независимо от имени и расширения.
+      Одинаковый размер не гарантирует одинаковое содержимое.
+    </p>}
     {mode === 'folders' && <p className="text-secondary small">
       Все файлы папки, включая подпапки, должны иметь копии с тем же именем и размером
       в более каноническом размещении: для прочих — полуканоническом или каноническом,

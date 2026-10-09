@@ -12,7 +12,7 @@ export type Destinations = Record<string, string>;
 
 export type MenuAction = 'open-settings' | 'update-library' | 'open-duplicates';
 
-export type DuplicateMode = 'name' | 'name-size';
+export type DuplicateMode = 'name' | 'name-size' | 'video-size';
 export const FilePlacement = {
   Other: 0,
   SemiCanonical: 1,
