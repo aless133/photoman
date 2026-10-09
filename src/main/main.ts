@@ -11,6 +11,10 @@ import path from 'path';
 const appDataRoot = app.getPath('appData');
 const folderName = app.isPackaged ? 'photoman' : 'photoman-dev';
 app.setPath('userData', path.join(appDataRoot, folderName));
+const appIcon = path.join(
+  app.isPackaged ? process.resourcesPath : path.join(app.getAppPath(), 'assets'),
+  process.platform === 'win32' ? 'icon.ico' : 'icon.png',
+);
 
 declare const MAIN_WINDOW_WEBPACK_ENTRY: string;
 declare const MAIN_WINDOW_PRELOAD_WEBPACK_ENTRY: string;
@@ -71,6 +75,7 @@ const createWindow = (): void => {
   mainWindow = new BrowserWindow({
     height: 850,
     width: 1600,
+    icon: appIcon,
     webPreferences: {
       webSecurity: false,
       preload: MAIN_WINDOW_PRELOAD_WEBPACK_ENTRY,
@@ -83,6 +88,7 @@ const createWindow = (): void => {
     action: url.startsWith('file:') ? 'allow' : 'deny',
     overrideBrowserWindowOptions: {
       show: false,
+      icon: appIcon,
       webPreferences: {
         preload: '',
         nodeIntegration: false,
