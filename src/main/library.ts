@@ -36,11 +36,17 @@ export async function updateLibrary(onProgress: (progress: LibraryProgress) => v
       const stat = await fs.stat(filename);
       let date = getFileDate(entry.name);
       if (!date) {
-        metadataTool ??= new ExifTool(app.isPackaged ? {
-          exiftoolPath: path.join(process.resourcesPath,
+        metadataTool ??= new ExifTool({
+          // Webpack cannot resolve the package's dynamic binary import in dev.
+          exiftoolPath: path.join(app.isPackaged ? process.resourcesPath
+            : path.join(app.getAppPath(), 'node_modules'),
             `exiftool-vendored.${process.platform === 'win32' ? 'exe' : 'pl'}`,
             'bin', process.platform === 'win32' ? 'exiftool.exe' : 'exiftool'),
-        } : {});
+          taskRetries: 0,
+          spawnTimeoutMillis: 5000,
+          taskTimeoutMillis: 5000,
+          maxProcs: 1,
+        });
         date = await readMetadataDate(metadataTool, filename);
       }
       batch.push({ path: filename, name: entry.name, size: stat.size, date,
