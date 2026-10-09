@@ -43,7 +43,7 @@ export function DuplicateFolderCard({ folder }: { folder: DuplicateFolder }) {
     <h2 className="h6 text-break">{folder.identicalFolders.length ? 'Полностью одинаковые папки' : folder.path}
       <span className="badge bg-secondary ms-2">{folder.files.length} файлов</span></h2>
     {folder.identicalFolders.length > 0 && <>
-      <p className="small text-secondary">Совпадают имена, размеры и количество всех файлов, включая подпапки.
+      <p className="small text-secondary">Совпадают имена, размеры и количество файлов непосредственно в этих папках.
         {folder.mainFolders.length === 0 && ' Главная папка среди них не выбрана.'}</p>
       <ul className="small text-break">
         {[folder.path, ...folder.identicalFolders].map(directory => <li key={directory}>{directory}</li>)}
@@ -126,10 +126,10 @@ export default function Duplicates() {
       Одинаковый размер не гарантирует одинаковое содержимое.
     </p>}
     {mode === 'folders' && <p className="text-secondary small">
-      Сравниваются имена, размеры и количество файлов, включая подпапки. Папка, содержащая весь набор
+      Сравниваются папки с собственными файлами по базе библиотеки. Содержимое подпапок сравнивается отдельно.
+      Учитываются имена, размеры и количество файлов непосредственно в папке. Папка, содержащая весь набор
       и дополнительные файлы, считается главной независимо от каноничности. Полностью одинаковые папки
       показываются одной группой. Также показываются папки, все файлы которых имеют более канонические копии.
-      Родительская папка не считается копией собственной подпапки.
     </p>}
     {error && <div className="alert alert-danger" role="alert">{error}</div>}
     {groups !== null && <p role="status">{groups.length === 0 ? 'Дубликаты не найдены.' :
