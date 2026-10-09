@@ -15,7 +15,7 @@ export function findDuplicates(mode: DuplicateMode, db: Database.Database = getD
       ${videoSize ? `AND (${videoExtensions.map(ext => `substr(lower(name), -${ext.length}) = '${ext}'`).join(' OR ')})` : ''}
     ), duplicates AS (
       SELECT ${keys} FROM eligible
-      GROUP BY ${keys} HAVING COUNT(*) > 1
+      GROUP BY ${keys} HAVING ${videoSize ? 'COUNT(DISTINCT name)' : 'COUNT(*)'} > 1
     )
     SELECT f.id, f.name, f.path, f.size, f.placement FROM eligible f
     JOIN duplicates d ON ${videoSize ? 'f.size = d.size' : `f.name = d.name${bySize ? ' AND f.size = d.size' : ''}`}

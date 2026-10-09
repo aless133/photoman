@@ -26,6 +26,16 @@ const names = findDuplicates('name', db);
 assert.equal(names.length, 1);
 assert.equal(names[0].name, 'same.mp4');
 assert.deepEqual(names[0].files.map(f => f.placement), [2, 0]);
+add.run('backup/repeated.mp4', 'repeated.mp4', 400, 0, 0);
+add.run('library/repeated.mp4', 'repeated.mp4', 400, 2, 0);
+add.run('missing/renamed.mp4', 'renamed.mp4', 400, 0, 1);
+add.run('photos/different.jpg', 'different.jpg', 400, 0, 0);
+assert.equal(findDuplicates('video-size', db).length, 1, 'Same names, missing videos and images must not create video-size groups');
+assert.equal(findDuplicates('name-size', db).find(g => g.name === 'repeated.mp4').files.length, 2);
+add.run('month/new-name.mp4', 'new-name.mp4', 400, 1, 0);
+const renamedGroup = findDuplicates('video-size', db).find(g => g.size === 400);
+assert.deepEqual(renamedGroup.files.map(f => f.path),
+  ['library/repeated.mp4', 'month/new-name.mp4', 'backup/repeated.mp4']);
 assert.throws(() => findDuplicates('unknown', db));
 db.close();
 console.log('Duplicates: renamed videos, extensions, ranks, sizes, missing files and existing modes passed');
