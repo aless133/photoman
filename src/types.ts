@@ -21,6 +21,8 @@ export const FilePlacement = {
 export type FilePlacement = typeof FilePlacement[keyof typeof FilePlacement];
 export type DuplicateFile = { id: number; path: string; size: number; placement: FilePlacement };
 export type DuplicateGroup = { name: string; size: number | null; files: DuplicateFile[] };
+export type DuplicateFolderFile = { name: string; source: DuplicateFile; copies: DuplicateFile[] };
+export type DuplicateFolder = { path: string; files: DuplicateFolderFile[] };
 
 export type LibraryProgress = {
   phase: 'scanning' | 'indexing' | 'done' | 'error';

@@ -4,6 +4,7 @@ import { getFiles, copyFiles } from './files';
 import { updateLibrary } from './library';
 import path from 'path';
 import { findDuplicates } from './duplicates';
+import { findDuplicateFolders } from './duplicate-folders';
 
 export function registerIpc(onSettingsSaved: () => Promise<void>): void {
   // Keep settings changes and manual refreshes in order.
@@ -21,6 +22,7 @@ export function registerIpc(onSettingsSaved: () => Promise<void>): void {
   ipcMain.handle('files:copy', (event, d) => copyFiles(d));
   ipcMain.handle('library:update', event => enqueue(() => refreshLibrary(event.sender)));
   ipcMain.handle('duplicates:find', (_event, mode) => enqueue(async () => findDuplicates(mode)));
+  ipcMain.handle('duplicates:folders', () => enqueue(async () => findDuplicateFolders()));
 
   ipcMain.handle('config:get', () => getSettingsStatus());
   ipcMain.handle('config:save', (event, config) => enqueue(async () => {
