@@ -2,6 +2,7 @@ import { promises as fs } from 'fs';
 import path from 'path';
 import { getDb } from './db';
 import { SettingsConfig, SettingsStatus } from '../types';
+import { parseDirectoryMasks } from './directory-exclusions';
 
 function readSetting(key: string): string {
   const row = getDb().prepare('SELECT value FROM setting WHERE key = ?').get(key) as { value: string } | undefined;
@@ -10,6 +11,7 @@ function readSetting(key: string): string {
 
 export const getFilesDir = (): string => readSetting('import_dir');
 export const getLibDir = (): string => readSetting('library_dir');
+export const getExcludedDirectoryMasks = (): string => readSetting('excluded_directory_masks');
 
 export async function validateSettings(config: SettingsConfig): Promise<string[]> {
   const errors: string[] = [];
@@ -28,7 +30,7 @@ export async function validateSettings(config: SettingsConfig): Promise<string[]
 }
 
 export async function getSettingsStatus(): Promise<SettingsStatus> {
-  const config = { filesDir: getFilesDir(), libDir: getLibDir() };
+  const config = { filesDir: getFilesDir(), libDir: getLibDir(), excludedDirectoryMasks: getExcludedDirectoryMasks() };
   const errors = await validateSettings(config);
   return { ...config, errors, valid: errors.length === 0 };
 }
@@ -37,13 +39,18 @@ export async function saveSettings(input: SettingsConfig): Promise<SettingsStatu
   if (typeof input?.filesDir !== 'string' || typeof input?.libDir !== 'string') {
     throw new Error('Укажите оба каталога.');
   }
-  const config = { filesDir: input.filesDir.trim(), libDir: input.libDir.trim() };
+  if (input.excludedDirectoryMasks !== undefined && typeof input.excludedDirectoryMasks !== 'string') {
+    throw new Error('Укажите маски исключаемых каталогов строкой через запятую.');
+  }
+  const config = { filesDir: input.filesDir.trim(), libDir: input.libDir.trim(),
+    excludedDirectoryMasks: parseDirectoryMasks(input.excludedDirectoryMasks ?? '').join(', ') };
   const errors = await validateSettings(config);
   if (errors.length) return { ...config, errors, valid: false };
   const write = getDb().prepare('INSERT INTO setting (key, value) VALUES (?, ?) ON CONFLICT(key) DO UPDATE SET value = excluded.value');
   getDb().transaction(() => {
     write.run('import_dir', path.normalize(config.filesDir));
     write.run('library_dir', path.normalize(config.libDir));
+    write.run('excluded_directory_masks', config.excludedDirectoryMasks);
   })();
   return getSettingsStatus();
 }

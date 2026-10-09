@@ -6,11 +6,12 @@ function Settings({ initial, onSaved, onCancel }: {
   onSaved: (status: SettingsSaveResult) => void;
   onCancel: () => void;
 }) {
-  const [config, setConfig] = useState<SettingsConfig>({ filesDir: initial.filesDir, libDir: initial.libDir });
+  const [config, setConfig] = useState<SettingsConfig>({ filesDir: initial.filesDir, libDir: initial.libDir,
+    excludedDirectoryMasks: initial.excludedDirectoryMasks ?? '' });
   const [errors, setErrors] = useState(initial.errors);
   const [busy, setBusy] = useState(false);
 
-  const choose = async (key: keyof SettingsConfig) => {
+  const choose = async (key: 'filesDir' | 'libDir') => {
     try {
       const directory = await window.photoman.chooseDirectory();
       if (directory) setConfig(previous => ({ ...previous, [key]: directory }));
@@ -51,6 +52,18 @@ function Settings({ initial, onSaved, onCancel }: {
           </div>
         ))}
         </fieldset>
+        <div className="mb-4">
+          <label className="form-label" htmlFor="excludedDirectoryMasks">Маски исключаемых каталогов</label>
+          <input id="excludedDirectoryMasks" className="form-control" value={config.excludedDirectoryMasks} disabled={busy}
+            placeholder="!*, _*, temp" aria-describedby="excludedDirectoryMasks-help"
+            onChange={event => setConfig({ ...config, excludedDirectoryMasks: event.target.value })} />
+          <div id="excludedDirectoryMasks-help" className="form-text">
+            Маски через запятую: * — любое количество символов, ? — один символ. Регистр не учитывается.
+            Маска !* исключает каталоги, начинающиеся с !, вместе со всеми их подпапками и файлами.
+            Применяются только к именам каталогов внутри библиотеки. Пустое поле — без исключений.
+            После изменения обновите библиотеку для поиска дубликатов.
+          </div>
+        </div>
         {errors.length > 0 && <div className="alert alert-danger" role="alert">{errors.map(message => <div key={message}>{message}</div>)}</div>}
         <button className="btn btn-success" type="submit" disabled={busy}>{busy ? 'Сохранение...' : 'Сохранить'}</button>
         <button className="btn btn-primary ms-2" type="button" disabled={busy || !initial.valid} onClick={onCancel}>Отмена</button>

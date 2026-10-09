@@ -1,12 +1,12 @@
 import { constants, promises as fs } from 'fs';
 import path from 'path';
 import { NewFile, FileGroups, Destinations } from './../types';
-import { getLibDir, getFilesDir } from './settings';
+import { getLibDir, getFilesDir, getExcludedDirectoryMasks } from './settings';
+import { readLibraryFiles } from './library-scan';
 
 async function getLibrary(dir: string) {
-  const libAll = await fs.readdir(dir, { recursive: true, withFileTypes: true });
+  const libAll = await readLibraryFiles(dir, getExcludedDirectoryMasks());
   const libGroups = libAll
-    .filter(file => file.isFile())
     .reduce((acc, file) => {
       if (!acc[file.name]) {
         acc[file.name] = [];

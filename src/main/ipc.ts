@@ -1,5 +1,5 @@
 import { dialog, ipcMain, WebContents } from 'electron';
-import { getFilesDir, getLibDir, getSettingsStatus, saveSettings } from './settings';
+import { getFilesDir, getLibDir, getExcludedDirectoryMasks, getSettingsStatus, saveSettings } from './settings';
 import { getFiles, copyFiles } from './files';
 import { updateLibrary } from './library';
 import path from 'path';
@@ -33,6 +33,7 @@ export function registerIpc(onSettingsSaved: () => Promise<void>): void {
   ipcMain.handle('config:save', (event, config) => enqueue(async () => {
     const previousLibraryDir = getLibDir();
     const previousFilesDir = getFilesDir();
+    const previousExcludedDirectoryMasks = getExcludedDirectoryMasks();
     const status = await saveSettings(config);
     let libraryUpdateRequired = false;
     if (status.valid) {
@@ -40,7 +41,8 @@ export function registerIpc(onSettingsSaved: () => Promise<void>): void {
       const normalize = (directory: string) => process.platform === 'win32'
         ? path.normalize(directory).toLowerCase() : path.normalize(directory);
       if (!previousLibraryDir || normalize(previousLibraryDir) !== normalize(status.libDir)
-        || normalize(previousFilesDir) !== normalize(status.filesDir)) {
+        || normalize(previousFilesDir) !== normalize(status.filesDir)
+        || previousExcludedDirectoryMasks !== status.excludedDirectoryMasks) {
         libraryUpdateRequired = true;
       }
     }

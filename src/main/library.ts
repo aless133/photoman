@@ -1,7 +1,8 @@
 import { promises as fs } from 'fs';
 import path from 'path';
 import { getDb } from './db';
-import { getLibDir } from './settings';
+import { getLibDir, getExcludedDirectoryMasks } from './settings';
+import { readLibraryFiles } from './library-scan';
 import { getFileDate } from './library-date';
 import { readMetadataDate } from './library-metadata';
 import { app } from 'electron';
@@ -29,8 +30,7 @@ export async function updateLibrary(onProgress: (progress: LibraryProgress) => v
     if (!directory || !path.isAbsolute(directory)) {
       throw new Error('Укажите полный путь к каталогу библиотеки в настройках.');
     }
-    const entries = (await fs.readdir(directory, { recursive: true, withFileTypes: true }))
-      .filter(entry => entry.isFile());
+    const entries = await readLibraryFiles(directory, getExcludedDirectoryMasks());
     total = entries.length;
     notify('indexing');
     const insert = db.prepare('INSERT INTO files (path, name, size, date, placement) VALUES (?, ?, ?, ?, ?)');

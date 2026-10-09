@@ -14,9 +14,11 @@ async function main() {
   const settings = require('../src/main/settings');
   const database = require('../src/main/db');
   const originalRoot = settings.getLibDir;
+  const originalMasks = settings.getExcludedDirectoryMasks;
   const originalDb = database.getDb;
   const originalLoad = Module._load;
   settings.getLibDir = () => directory;
+  settings.getExcludedDirectoryMasks = () => '';
   database.getDb = () => ({
     prepare: sql => ({ run: (...values) => { if (sql.startsWith('INSERT')) rows.push(values); } }),
     transaction: callback => callback,
@@ -74,6 +76,27 @@ async function main() {
     assert.ok(progress.at(-1).finishedAt >= progress.at(-1).startedAt);
     assert.equal(ended, false);
 
+    for (const name of ['!notice.jpg', 'note.tmp', 'ignored.TMP']) await fs.writeFile(path.join(day, name), 'fixture');
+    for (const folder of ['!skip', 'Temp']) {
+      await fs.mkdir(path.join(day, folder, 'nested'), { recursive: true });
+      await fs.writeFile(path.join(day, folder, 'nested', 'excluded.jpg'), 'fixture');
+    }
+    settings.getExcludedDirectoryMasks = () => '!*, temp';
+    rows.length = reads.length = progress.length = 0;
+    assert.equal(await updateLibrary(value => progress.push(value)), 9);
+    assert.equal(rows.length, 9);
+    assert.ok(rows.some(row => row[1] === '!notice.jpg'), 'Never match masks against file names');
+    assert.ok(reads.includes('!notice.jpg'));
+    assert.ok(!reads.includes('excluded.jpg'), 'Do not read metadata inside excluded subtrees');
+    assert.equal(progress.at(-1).total, 9);
+    await fs.writeFile(path.join(directory, '!root-file.jpg'), 'fixture');
+    settings.getExcludedDirectoryMasks = () => '*';
+    rows.length = progress.length = 0;
+    assert.equal(await updateLibrary(value => progress.push(value), { readMetadata: false }), 1);
+    assert.equal(rows[0][1], '!root-file.jpg', 'Root files remain even when all child directories are excluded');
+    assert.equal(progress.at(-1).total, 1);
+    assert.equal(progress.at(-1).processed, 1);
+
     progress.length = 0;
     settings.getLibDir = () => '';
     await assert.rejects(updateLibrary(value => progress.push(value), { readMetadata: false }), /полный путь/);
@@ -83,6 +106,7 @@ async function main() {
   } finally {
     Module._load = originalLoad;
     settings.getLibDir = originalRoot;
+    settings.getExcludedDirectoryMasks = originalMasks;
     database.getDb = originalDb;
     await fs.rm(directory, { recursive: true, force: true });
   }

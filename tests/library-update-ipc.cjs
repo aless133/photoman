@@ -8,12 +8,15 @@ const settings = require('../src/main/settings');
 const library = require('../src/main/library');
 let libraryDir = path.resolve('previous-library');
 const importDir = path.resolve('import');
+let excludedDirectoryMasks = '';
 const updates = [], messages = [];
 settings.getLibDir = () => libraryDir;
 settings.getFilesDir = () => importDir;
+settings.getExcludedDirectoryMasks = () => excludedDirectoryMasks;
 settings.saveSettings = async config => {
   libraryDir = config.libDir;
-  return { ...config, valid: true, errors: [] };
+  excludedDirectoryMasks = config.excludedDirectoryMasks ?? '';
+  return { ...config, excludedDirectoryMasks, valid: true, errors: [] };
 };
 library.updateLibrary = async (onProgress, options) => {
   updates.push(options);
@@ -35,6 +38,11 @@ async function main() {
   assert.deepEqual(updates, [], 'Saving settings must await explicit Start, rather than launching metadata reads');
   const same = await handlers.get('config:save')(event, { filesDir: importDir, libDir: libraryDir });
   assert.equal(same.libraryUpdateRequired, false);
+  const masksChanged = await handlers.get('config:save')(event, { filesDir: importDir, libDir: libraryDir, excludedDirectoryMasks: '!*' });
+  assert.equal(masksChanged.libraryUpdateRequired, true);
+  assert.deepEqual(updates, [], 'Changing masks should open the update screen, not start indexing automatically');
+  const masksUnchanged = await handlers.get('config:save')(event, { filesDir: importDir, libDir: libraryDir, excludedDirectoryMasks: '!*' });
+  assert.equal(masksUnchanged.libraryUpdateRequired, false);
   const update = handlers.get('library:update');
   assert.throws(() => update(event, undefined), /метаданные/);
   assert.throws(() => update(event, { readMetadata: 'false' }), /метаданные/);

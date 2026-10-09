@@ -1,10 +1,10 @@
 import { contextBridge, ipcRenderer } from 'electron';
 import { Destinations, DuplicateMode, LibraryProgress, LibraryUpdateOptions, MenuAction, SettingsConfig, SettingsStatus } from './../types';
 
-let settings: SettingsConfig = { filesDir: '', libDir: '' };
+let settings: SettingsConfig = { filesDir: '', libDir: '', excludedDirectoryMasks: '' };
 async function loadSettings(channel: string, config?: SettingsConfig): Promise<SettingsStatus> {
   const status: SettingsStatus = await ipcRenderer.invoke(channel, config);
-  if (status.valid) settings = { filesDir: status.filesDir, libDir: status.libDir };
+  if (status.valid) settings = { filesDir: status.filesDir, libDir: status.libDir, excludedDirectoryMasks: status.excludedDirectoryMasks };
   return status;
 }
 

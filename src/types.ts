@@ -41,6 +41,6 @@ export type LibraryProgress = {
 
 export type LibraryUpdateOptions = { readMetadata: boolean };
 
-export type SettingsConfig = { filesDir: string; libDir: string };
+export type SettingsConfig = { filesDir: string; libDir: string; excludedDirectoryMasks: string };
 export type SettingsStatus = SettingsConfig & { valid: boolean; errors: string[] };
 export type SettingsSaveResult = SettingsStatus & { libraryUpdateRequired: boolean };
